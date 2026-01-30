@@ -8,7 +8,7 @@
   <!-- Fuentes -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet"/>
 
   <link rel="stylesheet" href="estilos.css"/>
 </head>
@@ -46,24 +46,22 @@
     </nav>
   </aside>
 
-  <!-- Encabezado superior simple -->
+  <!-- Encabezado superior minimal -->
   <header class="topbar elevation">
     <h1 class="brand-title">Versa</h1>
   </header>
 
   <main id="content">
-    <!-- FEED (solo título + eslogan) -->
+    <!-- FEED (hero limpio) -->
     <section id="sec-feed" class="section visible hero">
       <h2 class="hero-title">Versa</h2>
-      <p class="hero-tag">Versos suaves en tonos café y rosa pastel.</p>
-      <!-- Si más adelante quieres mostrar posts aquí, lo activamos. -->
+      <p class="hero-tag">Donde la tinta descansa en rosa y café.</p>
       <div id="feed-list" class="list hidden"></div>
     </section>
 
     <!-- EDITOR FULL-SCREEN -->
     <section id="sec-editor" class="section editor-wrap">
       <div class="editor blossom-corners elevation" id="editor">
-        <!-- Título del poema -->
         <input id="title-input" class="title-input" type="text" placeholder="Título del alma…"/>
 
         <!-- Toolbar -->
@@ -82,7 +80,7 @@
           </label>
         </div>
 
-        <!-- Papel del editor (ocupa casi toda la pantalla) -->
+        <!-- Papel del editor (pantalla alta) -->
         <div id="editor-paper" class="paper">
           <textarea id="editor-text" placeholder="Escribe tus versos aquí…"></textarea>
         </div>
@@ -94,15 +92,15 @@
             <button id="btn-publicar" class="btn primary">Publicar Versos</button>
           </div>
         </div>
-
         <p id="editor-hint" class="hint">Debes iniciar sesión para publicar o guardar.</p>
       </div>
     </section>
 
-    <!-- PERFIL (incluye login/registro + editar perfil) -->
+    <!-- PERFIL (login/registro + tarjeta y modal de identidad) -->
     <section id="sec-profile" class="section">
       <h2>Mi Perfil</h2>
 
+      <!-- Caja de autenticación (solo si no hay sesión) -->
       <div id="auth-box" class="card blossom-corners elevation">
         <h3>Iniciar sesión o registrarse</h3>
         <div class="row">
@@ -117,26 +115,24 @@
         <p id="auth-status" class="subtle">Desconectada</p>
       </div>
 
+      <!-- Tarjeta de perfil (solo si hay sesión) -->
       <div id="profile-box" class="card blossom-corners elevation hidden">
         <div class="row">
-          <label>Nombre</label>
-          <input id="p-name" type="text" placeholder="Tu nombre"/>
+          <div class="profile-col">
+            <div class="avatar-circle">EM</div>
+            <div class="profile-meta">
+              <div id="profile-name" class="profile-name">—</div>
+              <div id="profile-handle" class="profile-handle">@—</div>
+              <div id="profile-signature" class="profile-signature">—</div>
+            </div>
+          </div>
+          <div class="profile-actions">
+            <button id="btn-open-profile-modal" class="btn">Editar identidad</button>
+            <button id="btn-logout" class="btn danger">Cerrar sesión</button>
+          </div>
         </div>
         <div class="row">
-          <label>Usuario</label>
-          <input id="p-handle" type="text" placeholder="ej. emely_m"/>
-        </div>
-        <div class="row">
-          <label>Firma (se mostrará bajo tus poemas)</label>
-          <input id="p-signature" type="text" placeholder="— Emely"/>
-        </div>
-        <div class="row">
-          <label>Bio</label>
-          <textarea id="p-bio" rows="3" placeholder="Algo breve sobre ti…"></textarea>
-        </div>
-        <div class="row">
-          <button id="btn-save-profile" class="btn primary">Guardar Cambios</button>
-          <button id="btn-logout" class="btn danger">Cerrar sesión</button>
+          <p id="profile-bio" class="profile-bio subtle"></p>
         </div>
       </div>
     </section>
@@ -181,7 +177,30 @@
     </section>
   </main>
 
-  <footer class="footer">Hecho con café y fresas  ☕🍓</footer>
+  <footer class="footer">Hecho con café y fresas por Emely ☕🍓</footer>
+
+  <!-- Modal “Editar identidad” -->
+  <div id="profile-modal-overlay" class="modal-overlay hidden">
+    <div id="profile-modal" class="modal blossom-corners elevation">
+      <div class="modal-header">
+        <h3>Editar Identidad</h3>
+        <button id="btn-close-profile-modal" class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="row"><label>Nombre completo</label><input id="m-name" type="text" placeholder="Emely Martínez"/></div>
+        <div class="row"><label>Usuario</label><input id="m-handle" type="text" placeholder="emely_m"/></div>
+        <div class="row"><label>Firma</label><input id="m-signature" type="text" placeholder="— Emely"/></div>
+        <div class="row"><label>Biografía</label><textarea id="m-bio" rows="3" placeholder="Algo breve sobre ti…"></textarea></div>
+        <div class="row row-opts">
+          <label class="chk"><input id="m-preview" type="checkbox" checked/> previsualizar</label>
+          <label class="chk"><input id="m-soft" type="checkbox" checked/> bordes suaves</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="m-save" class="btn primary">Guardar Cambios ✨</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Lluvia de fresas y toast -->
   <div id="strawberry-rain"></div>

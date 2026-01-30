@@ -7,7 +7,7 @@
   --danger:#e05656;
   --primary:#b06e7a;
   --paper:#ffffff;
-  --shadow-color:#f7c9d4; /* se cambia desde el editor */
+  --shadow-color:#f7c9d4; /* controlada desde el editor */
 
   --elev-0:none;
   --elev-1:0 1px 3px rgba(30,30,30,.12), 0 1px 2px rgba(30,30,30,.08);
@@ -22,7 +22,11 @@ body.theme-cafe-rosa{
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
 }
 
-/* Header mínimo */
+.elevation{ box-shadow: var(--elev); }
+.hidden{ display:none !important; }
+.subtle{ opacity:.75; }
+
+/* Header minimal */
 .topbar{
   position:sticky; top:0; z-index:20;
   background:#fff; border-bottom:1px solid #f0e3e6;
@@ -30,7 +34,7 @@ body.theme-cafe-rosa{
 }
 .brand-title{ margin:0; font-family:"Playfair Display", serif; }
 
-/* Botón fresa flotante (abre/cierra sidebar) */
+/* Fresa flotante */
 .logo-float{
   position:fixed; left:14px; top:14px; width:46px; height:46px; border-radius:50%;
   border:none; cursor:pointer; z-index:50; display:grid; place-items:center;
@@ -42,7 +46,6 @@ body.theme-cafe-rosa{
 .sidebar{
   position:fixed; left:16px; top:76px; bottom:16px; width:230px; border-radius:24px;
   background:#3f2f2f; color:#fff; padding:12px; z-index:40;
-  box-shadow: var(--elev);
   transform: translateX(-140%); transition: transform .22s ease;
 }
 .sidebar.open{ transform: translateX(0); }
@@ -54,21 +57,19 @@ body.theme-cafe-rosa{
 }
 .item .icon{ width:22px; text-align:center; transition:.2s ease; }
 .item:hover{ background: rgba(255,255,255,.08); }
-.item:hover .icon{ color:#ff8fb1; } /* rosita al pasar */
+.item:hover .icon{ color:#ff8fb1; } /* iconos rosita al pasar */
 .item.active{ background: rgba(255,255,255,.14); }
-/* Badge fresita notificaciones */
+
+/* Badge fresita notifs */
 .notif-badge{
   position:absolute; right:10px; top:10px; font-size:14px;
   filter: drop-shadow(0 0 6px rgba(255,105,180,.9));
 }
-.hidden{ display:none !important; }
 
-.elevation{ box-shadow: var(--elev); }
-.section{ display:none; max-width:980px; margin:22px auto; padding:0 16px; }
-.section.visible{ display:block; }
-.subtle{ opacity:.75; }
+/* Contenido desplazado */
+#content{ max-width: 980px; margin: 22px auto; padding: 0 16px; }
 
-/* Hero del feed (solo título + eslogan) */
+/* Hero feed */
 .hero{ text-align:center; padding-top:8vh; }
 .hero-title{ font-family:"Playfair Display", serif; font-size:44px; margin:0; }
 .hero-tag{ margin:6px 0 0; opacity:.8; }
@@ -92,7 +93,7 @@ body.theme-cafe-rosa{
 .paper{
   background:var(--paper); border-radius:16px; padding:12px;
   min-height: calc(100vh - 280px);
-  /* Sombra de color tipo diseño base */
+  /* Sombra de color tipo diseño base (derecha e inferior) */
   box-shadow:
     10px 0 0 0 var(--shadow-color),
     0 10px 0 0 var(--shadow-color),
@@ -107,7 +108,7 @@ body.theme-cafe-rosa{
 }
 .hint{ font-size:13px; opacity:.7; margin-top:6px; }
 
-/* Listas, tarjetas */
+/* Cards y listas */
 .list{ display:grid; grid-template-columns:1fr; gap:12px; margin-top:12px; }
 .card{
   position:relative; background:#fff; border:1px solid #f0e3e6; border-radius:16px; padding:12px;
@@ -122,16 +123,35 @@ body.theme-cafe-rosa{
   background:#fff0f4; border:1px solid #ffd3df; color:#b14d66; cursor:pointer;
 }
 
-/* Like pop + brillo */
-.pop{
-  position:absolute; transform: translate(-50%,-50%); pointer-events:none;
-  animation: pop 600ms ease-out forwards; font-size:20px; text-shadow: 0 0 10px rgba(255,105,180,.9);
+/* Perfil */
+.profile-col{ display:flex; align-items:center; gap:12px; }
+.avatar-circle{
+  width:56px; height:56px; border-radius:50%; display:grid; place-items:center; background:#ffe7ee; color:#b14d66; font-weight:700;
 }
-@keyframes pop{
-  0%{ opacity:0; transform: translate(-50%,-20%) scale(.7);}
-  50%{ opacity:1; transform: translate(-50%,-60%) scale(1.15);}
-  100%{ opacity:0; transform: translate(-50%,-100%) scale(.9);}
+.profile-name{ font-weight:600; }
+.profile-handle{ opacity:.75; }
+.profile-signature{ font-style:italic; opacity:.85; }
+.profile-actions{ margin-left:auto; display:flex; gap:10px; }
+
+/* Modal de identidad */
+.modal-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.25); display:grid; place-items:center; z-index:1000;
+  backdrop-filter: blur(2px);
 }
+.modal{
+  width: min(600px, 92vw); background:#fff; border-radius:18px; padding:14px 14px 16px; position:relative;
+}
+.modal-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+.modal-header h3{ margin:0; font-family:"Playfair Display", serif; }
+.modal-close{ border:none; background:transparent; font-size:18px; cursor:pointer; }
+.modal-body .row{ margin:8px 0; display:flex; gap:10px; flex-wrap:wrap; }
+.modal-body label{ width:100%; font-size:14px; opacity:.9; }
+.modal-body input, .modal-body textarea{
+  flex:1; padding:8px 10px; border:1px solid #e8dbe0; border-radius:10px; outline:none; background:#fff;
+}
+.row-opts{ display:flex; gap:14px; }
+.chk{ display:flex; align-items:center; gap:6px; font-size:14px; }
+.modal-footer{ display:flex; justify-content:flex-end; margin-top:10px; }
 
 /* Lluvia de fresas */
 #strawberry-rain{ position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:9999; }
@@ -145,6 +165,17 @@ body.theme-cafe-rosa{
   100%{ transform: translateY(120vh) rotate(90deg); opacity:.95; }
 }
 
+/* Pop like */
+.pop{
+  position:absolute; transform: translate(-50%,-50%); pointer-events:none;
+  animation: pop 600ms ease-out forwards; font-size:20px; text-shadow: 0 0 10px rgba(255,105,180,.9);
+}
+@keyframes pop{
+  0%{ opacity:0; transform: translate(-50%,-20%) scale(.7);}
+  50%{ opacity:1; transform: translate(-50%,-60%) scale(1.15);}
+  100%{ opacity:0; transform: translate(-50%,-100%) scale(.9);}
+}
+
 /* Toast */
 .toast{
   position:fixed; left:50%; transform:translateX(-50%); bottom:18px; padding:10px 14px;
@@ -152,7 +183,7 @@ body.theme-cafe-rosa{
 }
 .toast.hidden{ display:none; }
 
-/* Controles comunes */
+/* Botones */
 .btn{
   border:none; padding:8px 12px; border-radius:12px; cursor:pointer;
   background:#eee; color:#333; transition:.2s ease; box-shadow: var(--elev);
@@ -169,7 +200,7 @@ body.theme-cafe-rosa{
   flex:1; padding:8px 10px; border:1px solid #e8dbe0; border-radius:10px; outline:none;
 }
 
-/* Flores de cerezo */
+/* Flores de cerezo en esquinas */
 .blossom-corners::before,
 .blossom-corners::after{
   content:""; position:absolute; width:80px; height:80px; pointer-events:none; opacity:.22;

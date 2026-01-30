@@ -1,4 +1,4 @@
-// Firebase
+// Firebase SDKs desde CDN (modular)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider,
@@ -11,7 +11,7 @@ import {
   doc, updateDoc, deleteDoc, runTransaction, getDoc, setDoc, getDocs, limit
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Config
+// === Config Firebase (tu proyecto)
 const firebaseConfig = {
   apiKey: "AIzaSyBsYiC08WUFzHjjKrlqbefRaBTmR_LUn4o",
   authDomain: "versa-625d6.firebaseapp.com",
@@ -22,7 +22,7 @@ const firebaseConfig = {
   measurementId: "G-JM2CX4G493"
 };
 
-// Init
+// Init Firebase
 const app = initializeApp(firebaseConfig);
 isSupported().then(ok => { if(ok){ try{ getAnalytics(app); }catch{} }});
 const auth = getAuth(app);
@@ -30,7 +30,7 @@ const db = getFirestore(app);
 await setPersistence(auth, browserLocalPersistence);
 const googleProvider = new GoogleAuthProvider();
 
-// ======= DOM
+// ======= DOM =======
 const sidebarToggle = document.getElementById("sidebarToggle");
 const sidebar = document.getElementById("sidebar");
 const menuButtons = document.querySelectorAll(".menu .item");
@@ -61,11 +61,23 @@ const btnSignupEmail = document.getElementById("btn-signup-email");
 const btnLoginGoogle = document.getElementById("btn-login-google");
 const btnLogout = document.getElementById("btn-logout");
 
-const pName = document.getElementById("p-name");
-const pHandle = document.getElementById("p-handle");
-const pSignature = document.getElementById("p-signature");
-const pBio = document.getElementById("p-bio");
-const btnSaveProfile = document.getElementById("btn-save-profile");
+const profileName = document.getElementById("profile-name");
+const profileHandle = document.getElementById("profile-handle");
+const profileSignature = document.getElementById("profile-signature");
+const profileBio = document.getElementById("profile-bio");
+const btnOpenProfileModal = document.getElementById("btn-open-profile-modal");
+
+// Modal
+const modalOverlay = document.getElementById("profile-modal-overlay");
+const modal = document.getElementById("profile-modal");
+const btnCloseModal = document.getElementById("btn-close-profile-modal");
+const mName = document.getElementById("m-name");
+const mHandle = document.getElementById("m-handle");
+const mSignature = document.getElementById("m-signature");
+const mBio = document.getElementById("m-bio");
+const mPreview = document.getElementById("m-preview");
+const mSoft = document.getElementById("m-soft");
+const mSave = document.getElementById("m-save");
 
 // Editor
 const titleInput = document.getElementById("title-input");
@@ -87,8 +99,8 @@ const toggleDark = document.getElementById("toggle-dark");
 const toast = document.getElementById("toast");
 const rain = document.getElementById("strawberry-rain");
 
-// ======= Config local
-const cfgKey = "versa_cfg_v2";
+// ======= Config local (persistente) =======
+const cfgKey = "versa_cfg_v3";
 function loadCfg(){
   try{ return JSON.parse(localStorage.getItem(cfgKey)) ?? { tecleo:false, fresas:true, dark:false, shadow:"#f7c9d4" }; }
   catch{ return { tecleo:false, fresas:true, dark:false, shadow:"#f7c9d4" }; }
@@ -101,7 +113,7 @@ toggleDark.checked   = cfg.dark;
 shadowColor.value    = cfg.shadow;
 applyTheme(); setShadowColor(cfg.shadow);
 
-// ======= UI helpers
+// ======= Helpers UI =======
 function showToast(msg, type="ok"){
   toast.textContent = msg;
   toast.style.background = type==="err" ? "rgba(224,86,86,.95)" : "rgba(176,110,122,.95)";
@@ -139,7 +151,7 @@ function escapeHtml(str){
 function applyTheme(){ document.body.classList.toggle("dark", cfg.dark); }
 function setShadowColor(hex){ document.documentElement.style.setProperty("--shadow-color", hex || "#f7c9d4"); }
 
-// ======= Sidebar toggle (solo con la fresa)
+// ======= Sidebar (solo con la fresa) =======
 sidebarToggle.addEventListener("click", ()=>{
   sidebar.classList.toggle("open");
   const glow = sidebarToggle.querySelector(".glow-strawberry");
@@ -147,22 +159,19 @@ sidebarToggle.addEventListener("click", ()=>{
   setTimeout(()=> glow.style.filter = "drop-shadow(0 0 6px rgba(255,105,180,.6))", 450);
 });
 
-// Navegación
+// Navegación entre secciones
 menuButtons.forEach(btn=>{
   btn.addEventListener("click", ()=>{
     menuButtons.forEach(b=> b.classList.remove("active"));
     btn.classList.add("active");
     const sec = btn.getAttribute("data-section");
     Object.entries(sections).forEach(([k,el])=> el.classList.toggle("visible", k===sec));
-    // cierra sidebar para evitar “amontonado”
     sidebar.classList.remove("open");
-
-    // Si entras a notifs, marcamos como leídas
     if(sec==="notifs"){ markNotificationsRead(); }
   });
 });
 
-// ======= Editor: sombra, fuente, alineación, contador y sonido
+// ======= Editor (sombra, fuente, alineación, contador y sonido) =======
 tFont.addEventListener("change", ()=>{ editorText.style.fontFamily = tFont.value + ", serif"; });
 document.querySelectorAll(".toolbar [data-align]").forEach(b=>{
   b.addEventListener("click", ()=>{ editorText.style.textAlign = b.getAttribute("data-align"); });
@@ -173,7 +182,7 @@ editorText.addEventListener("input", ()=>{
   wordCountEl.textContent = `${words} palabra${words===1?"":"s"}`;
 });
 
-// Máquina de escribir (suave)
+// Máquina de escribir
 let audioCtx;
 function typewriterClick(){
   if(!toggleTecleo.checked) return;
@@ -195,14 +204,14 @@ let keyThrottle=0;
 editorText.addEventListener("keydown", ()=>{
   const now = Date.now(); if(now - keyThrottle > 40){ keyThrottle = now; typewriterClick(); }
 });
-tBold.addEventListener("click", ()=>{ /* textarea: simulamos negrita si lo deseas después */ });
+tBold.addEventListener("click", ()=>{ /* si luego cambias a contenteditable, aquí aplicas document.execCommand('bold') */ });
 
-// ======= Config toggles
+// ======= Config toggles =======
 toggleTecleo.addEventListener("change", ()=>{ cfg.tecleo = toggleTecleo.checked; saveCfg(cfg); });
 toggleFresas.addEventListener("change", ()=>{ cfg.fresas = toggleFresas.checked; saveCfg(cfg); });
 toggleDark.addEventListener("change", ()=>{ cfg.dark   = toggleDark.checked; saveCfg(cfg); applyTheme(); });
 
-// ======= Estado
+// ======= Estado global =======
 let currentUser=null;
 let unsubDrafts=null, unsubArchived=null, unsubFeed=null, unsubNotifCount=null, unsubNotifs=null;
 let followingSet = new Set();
@@ -214,20 +223,16 @@ onAuthStateChanged(auth, async (user)=>{
   authBox.classList.toggle("hidden", !!user);
   profileBox.classList.toggle("hidden", !user);
 
-  // Cargar/guardar perfil
   await loadProfile();
-
-  // Following para feed futuro
   await loadFollowing();
 
-  // Suscripciones
   subscribeDrafts();
   subscribeArchived();
-  subscribeFeed(false); // por ahora feed oculto (solo título/eslogan)
+  subscribeFeed(false); // feed hero limpio (lista oculta)
   subscribeNotifBadge();
 });
 
-// ======= Auth en perfil
+// ======= Auth dentro de Perfil =======
 btnLoginEmail.addEventListener("click", async ()=>{
   const email = (emailInput.value||"").trim(), pass = passInput.value||"";
   if(!email || !pass) return showToast("Completa email y contraseña", "err");
@@ -239,8 +244,9 @@ btnSignupEmail.addEventListener("click", async ()=>{
   if(!email || !pass) return showToast("Completa email y contraseña", "err");
   try{
     const res = await createUserWithEmailAndPassword(auth,email,pass);
-    // crea documento de usuario básico
-    await setDoc(doc(db,"users", res.user.uid), { name:"", handle: email.split("@")[0], signature:"— "+email.split("@")[0], createdAt: serverTimestamp() }, {merge:true});
+    await setDoc(doc(db,"users", res.user.uid), {
+      name:"", handle: email.split("@")[0], signature:"— "+email.split("@")[0], createdAt: serverTimestamp()
+    }, {merge:true});
     strawberryRain(); showToast("Cuenta creada 🍓");
   }catch(e){ showToast(e?.message || "No se pudo crear", "err"); }
 });
@@ -249,36 +255,55 @@ btnLoginGoogle.addEventListener("click", async ()=>{
     const res = await signInWithPopup(auth, new GoogleAuthProvider());
     const info = getAdditionalUserInfo(res);
     if(info?.isNewUser){
-      await setDoc(doc(db,"users", res.user.uid), { name: res.user.displayName || "", handle: (res.user.email||"").split("@")[0], signature:"— "+((res.user.displayName||"") || (res.user.email||"").split("@")[0]) }, {merge:true});
+      await setDoc(doc(db,"users", res.user.uid), {
+        name: res.user.displayName || "", handle: (res.user.email||"").split("@")[0],
+        signature:"— "+((res.user.displayName||"") || (res.user.email||"").split("@")[0])
+      }, {merge:true});
     }
     strawberryRain(); showToast("¡Bienvenida! 🍓");
   }catch(e){ showToast("No se pudo iniciar con Google", "err"); }
 });
 btnLogout.addEventListener("click", async ()=>{ try{ await signOut(auth); }catch(e){ showToast("Error al salir", "err"); } });
 
-// ======= Perfil
+// ======= Perfil (tarjeta + modal) =======
 async function loadProfile(){
-  if(!currentUser){ pName.value=""; pHandle.value=""; pSignature.value=""; pBio.value=""; return; }
+  if(!currentUser){
+    profileName.textContent="—"; profileHandle.textContent="@—"; profileSignature.textContent="—"; profileBio.textContent="";
+    return;
+  }
   const snap = await getDoc(doc(db,"users", currentUser.uid));
   const data = snap.exists()? snap.data() : {};
-  pName.value = data.name || currentUser.displayName || "";
-  pHandle.value = data.handle || (currentUser.email?.split("@")[0] || "");
-  pSignature.value = data.signature || "— " + (pName.value || "Anónimo");
-  pBio.value = data.bio || "";
+  const name = data.name || currentUser.displayName || "";
+  const handle = data.handle || (currentUser.email?.split("@")[0] || "");
+  const signature = data.signature || "— " + (name || "Anónimo");
+  const bio = data.bio || "";
+
+  profileName.textContent = name || "Sin nombre";
+  profileHandle.textContent = handle ? ("@"+handle) : "@sin_usuario";
+  profileSignature.textContent = signature;
+  profileBio.textContent = bio;
+
+  // Prellenar modal
+  mName.value = name; mHandle.value = handle; mSignature.value = signature; mBio.value = bio;
 }
-btnSaveProfile.addEventListener("click", async ()=>{
+btnOpenProfileModal.addEventListener("click", ()=>{ modalOverlay.classList.remove("hidden"); });
+btnCloseModal.addEventListener("click", ()=>{ modalOverlay.classList.add("hidden"); });
+modalOverlay.addEventListener("click", (e)=>{ if(e.target===modalOverlay) modalOverlay.classList.add("hidden"); });
+mSave.addEventListener("click", async ()=>{
   if(!currentUser) return;
   await setDoc(doc(db,"users", currentUser.uid), {
-    name:(pName.value||"").trim(),
-    handle:(pHandle.value||"").trim(),
-    signature:(pSignature.value||"").trim(),
-    bio:(pBio.value||"").trim(),
+    name: (mName.value||"").trim(),
+    handle: (mHandle.value||"").trim(),
+    signature: (mSignature.value||"").trim(),
+    bio: (mBio.value||"").trim(),
     updatedAt: serverTimestamp()
   }, {merge:true});
-  showToast("Perfil actualizado ✨");
+  showToast("Identidad actualizada ✨");
+  modalOverlay.classList.add("hidden");
+  loadProfile();
 });
 
-// ======= Following
+// ======= Following (seguir) =======
 async function loadFollowing(){
   followingSet.clear();
   if(!currentUser) return;
@@ -291,21 +316,17 @@ async function toggleFollow(authorId){
   const ref = doc(db,"users", currentUser.uid, "following", authorId);
   const snap = await getDoc(ref);
   if(snap.exists()){
-    await deleteDoc(ref);
-    followingSet.delete(authorId);
-    showToast("Dejaste de seguir");
+    await deleteDoc(ref); followingSet.delete(authorId); showToast("Dejaste de seguir");
   }else{
     await setDoc(ref, { createdAt: serverTimestamp() });
     followingSet.add(authorId);
     strawberryRain();
-    await pushNotification(authorId, {
-      type:"follow", fromUid: currentUser.uid, fromName: await myDisplayName(), createdAt: serverTimestamp(), read:false
-    });
+    await pushNotification(authorId, { type:"follow", fromUid: currentUser.uid, fromName: await myDisplayName(), createdAt: serverTimestamp(), read:false });
     showToast("Ahora sigues a esta persona 🍓");
   }
 }
 
-// ======= Suscripciones (Borradores / Archivados / Feed)
+// ======= Borradores / Archivados / Feed =======
 function subscribeDrafts(){
   if(unsubDrafts){ unsubDrafts(); unsubDrafts=null; }
   if(!currentUser){
@@ -329,21 +350,26 @@ function subscribeArchived(){
 function subscribeFeed(show=false){
   if(unsubFeed){ unsubFeed(); unsubFeed=null; }
   const list = document.getElementById("feed-list");
-  list.classList.toggle("hidden", !show); // por pedido: oculto
-  // Si luego quieres el feed visible, cambia show=true y listo
+  list.classList.toggle("hidden", !show); // por pedido, oculto
   unsubFeed = onSnapshot(
     query(collection(db,"posts"), where("status","==","publicado"), orderBy("publishedAt","desc"), limit(50)),
     (snap)=> { if(show) renderPostList(list, snap.docs, "feed"); }
   );
 }
 
-// ======= Render posts
+// ======= Render posts =======
 function truncateText(text, maxChars=520){
   if(text.length<=maxChars) return { short:text, truncated:false };
   const cut = text.slice(0, maxChars);
   const last = Math.max(cut.lastIndexOf(" "), cut.lastIndexOf("\n"));
   const short = (last>320? cut.slice(0,last) : cut) + "…";
   return { short, truncated:true };
+}
+function actionButtons(ctx, id){
+  if(ctx==="feed") return `<button class="btn" data-act="archivar" data-id="${id}">Archivar</button><button class="btn danger" data-act="borrar" data-id="${id}">Borrar</button>`;
+  if(ctx==="borradores") return `<button class="btn" data-act="editar" data-id="${id}">Editar</button><button class="btn primary" data-act="publicar" data-id="${id}">Publicar</button><button class="btn danger" data-act="borrar" data-id="${id}">Borrar</button>`;
+  if(ctx==="archivados") return `<button class="btn" data-act="restaurar" data-id="${id}">Restaurar</button><button class="btn danger" data-act="borrar" data-id="${id}">Borrar</button>`;
+  return "";
 }
 function renderPostList(container, docs, contexto){
   container.innerHTML = "";
@@ -376,7 +402,7 @@ function renderPostList(container, docs, contexto){
       <div class="actions">
         ${ contexto!=="borradores" ? `
           <button class="pill-btn btn-like" data-id="${id}">🍓 <span class="count">${likesCount}</span></button>
-          ${ currentUser && currentUser.uid!==authorId ? `<button class="pill-btn btn-follow" data-aid="${authorId}">${"Seguir"}</button>` : ``}
+          ${ currentUser && currentUser.uid!==authorId ? `<button class="pill-btn btn-follow" data-aid="${authorId}">Seguir</button>` : ``}
           <button class="pill-btn btn-fav" data-id="${id}">☆ Guardar</button>
         ` : ``}
         ${ currentUser && currentUser.uid===authorId ? actionButtons(contexto, id) : ``}
@@ -393,9 +419,8 @@ function renderPostList(container, docs, contexto){
     if(likeBtn){
       likeBtn.addEventListener("click", async (ev)=>{
         if(!currentUser) return showToast("Inicia sesión para dar me gusta", "err");
-        const before = await toggleLike(id);
-        // notif si es nuevo like y no es tuyo
-        if(before===false && authorId!==currentUser.uid){
+        const added = await toggleLike(id);
+        if(added && authorId!==currentUser.uid){
           await pushNotification(authorId, { type:"like", postId:id, fromUid: currentUser.uid, fromName: await myDisplayName(), createdAt: serverTimestamp(), read:false });
         }
         const r = ev.currentTarget.getBoundingClientRect();
@@ -405,11 +430,7 @@ function renderPostList(container, docs, contexto){
 
     // Follow
     const followBtn = card.querySelector(".btn-follow");
-    if(followBtn){
-      followBtn.addEventListener("click", async ()=>{
-        await toggleFollow(authorId);
-      });
-    }
+    if(followBtn){ followBtn.addEventListener("click", async ()=>{ await toggleFollow(authorId); }); }
 
     // Fav
     const favBtn = card.querySelector(".btn-fav");
@@ -429,7 +450,7 @@ function renderPostList(container, docs, contexto){
       });
     }
 
-    // Acciones de autor
+    // Acciones autor
     card.querySelectorAll("[data-act]").forEach(btn=>{
       btn.addEventListener("click", async ()=>{
         if(!currentUser) return showToast("Inicia sesión", "err");
@@ -458,14 +479,8 @@ function renderPostList(container, docs, contexto){
     container.appendChild(card);
   });
 }
-function actionButtons(ctx, id){
-  if(ctx==="feed") return `<button class="btn" data-act="archivar" data-id="${id}">Archivar</button><button class="btn danger" data-act="borrar" data-id="${id}">Borrar</button>`;
-  if(ctx==="borradores") return `<button class="btn" data-act="editar" data-id="${id}">Editar</button><button class="btn primary" data-act="publicar" data-id="${id}">Publicar</button><button class="btn danger" data-act="borrar" data-id="${id}">Borrar</button>`;
-  if(ctx==="archivados") return `<button class="btn" data-act="restaurar" data-id="${id}">Restaurar</button><button class="btn danger" data-act="borrar" data-id="${id}">Borrar</button>`;
-  return "";
-}
 
-// ======= Crear/Guardar
+// ======= Crear/Guardar =======
 let currentEditingId=null;
 btnPublicar.addEventListener("click", async ()=>{
   if(!currentUser) return showToast("Inicia sesión para publicar", "err");
@@ -478,13 +493,11 @@ btnPublicar.addEventListener("click", async ()=>{
   const signature = pd.signature || ("— " + authorName);
 
   if(currentEditingId){
-    await updateDoc(doc(db,"posts",currentEditingId), { title, texto, signature });
-    await updateDoc(doc(db,"posts",currentEditingId), { status:"publicado", publishedAt: serverTimestamp() });
+    await updateDoc(doc(db,"posts",currentEditingId), { title, texto, signature, status:"publicado", publishedAt: serverTimestamp() });
     currentEditingId=null;
   }else{
     await addDoc(collection(db,"posts"), {
-      title, texto, signature,
-      authorId: currentUser.uid, authorName,
+      title, texto, signature, authorId: currentUser.uid, authorName,
       status:"publicado", createdAt: serverTimestamp(), publishedAt: serverTimestamp(),
       likesCount:0, likedBy:[]
     });
@@ -516,7 +529,7 @@ btnBorrador.addEventListener("click", async ()=>{
   titleInput.value=""; editorText.value="";
 });
 
-// ======= Likes (retorna si fue like añadido (true) o removido (false))
+// ======= Likes (1 por persona) =======
 async function toggleLike(postId){
   if(!currentUser) return false;
   const ref = doc(db,"posts",postId);
@@ -536,15 +549,14 @@ async function toggleLike(postId){
   return added;
 }
 
-// ======= Notificaciones
+// ======= Notificaciones =======
 function subscribeNotifBadge(){
   if(unsubNotifCount){ unsubNotifCount(); unsubNotifCount=null; }
-  if(!currentUser){ notifBadge.classList.add("hidden"); return; }
+  if(!currentUser){ notifBadge.classList.add("hidden"); notifList.innerHTML = `<div class="card">Inicia sesión para ver notificaciones</div>`; return; }
   unsubNotifCount = onSnapshot(
     query(collection(db,"users", currentUser.uid, "notifications"), where("read","==", false)),
     (snap)=> { notifBadge.classList.toggle("hidden", snap.empty); }
   );
-  // Lista completa
   if(unsubNotifs){ unsubNotifs(); unsubNotifs=null; }
   unsubNotifs = onSnapshot(
     query(collection(db,"users", currentUser.uid, "notifications"), orderBy("createdAt","desc"), limit(50)),
@@ -553,13 +565,14 @@ function subscribeNotifBadge(){
       if(snap.empty){ notifList.innerHTML = `<div class="card">Sin notificaciones</div>`; return; }
       snap.forEach(d=>{
         const n = d.data();
+        const when = n.createdAt?.toDate?.() || new Date();
         const txt = n.type==="like" ? `A alguien le gustó tu poema`
                   : n.type==="favorite" ? `Guardaron tu poema en favoritos`
                   : n.type==="follow" ? `${n.fromName || "Alguien"} empezó a seguirte`
                   : `Notificación`;
         const card = document.createElement("div");
         card.className="card blossom-corners elevation";
-        card.innerHTML = `<div class="meta">${new Date(n.createdAt?.toDate?.()||Date.now()).toLocaleString()}</div><div>${txt}</div>`;
+        card.innerHTML = `<div class="meta">${when.toLocaleString()}</div><div>${txt}</div>`;
         notifList.appendChild(card);
       });
     }
@@ -572,9 +585,7 @@ async function markNotificationsRead(){
   await Promise.allSettled(ops);
 }
 async function pushNotification(userId, payload){
-  try{
-    await addDoc(collection(db,"users", userId, "notifications"), payload);
-  }catch{}
+  try{ await addDoc(collection(db,"users", userId, "notifications"), payload); }catch{}
 }
 async function myDisplayName(){
   if(!currentUser) return "Alguien";
@@ -583,7 +594,7 @@ async function myDisplayName(){
   return currentUser.displayName || (currentUser.email?.split("@")[0]) || "Alguien";
 }
 
-// ======= Helper navegación
+// ======= Helper navegación directa =======
 function menuOpen(sec){
   menuButtons.forEach(b=> b.classList.toggle("active", b.getAttribute("data-section")===sec));
   Object.entries(sections).forEach(([k,el])=> el.classList.toggle("visible", k===sec));
