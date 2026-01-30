@@ -169,4 +169,4 @@ window.onload = () => {
   document.getElementById('cfg-oscuro').checked = ajustes.oscuro;
   document.getElementById('cfg-sonido').checked = ajustes.sonido;
   mostrarSeccion('feed');
-};
+}; 
