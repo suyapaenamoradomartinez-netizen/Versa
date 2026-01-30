@@ -1,18 +1,16 @@
-:root { --rosa: #fce4ec; --rosa-fuerte: #ff8fa3; --crema: #f5f5f0; --cafe: #5a453d; }
-body { background: var(--crema); font-family: 'EB Garamond', serif; margin: 0; }
-.times { font-family: "Times New Roman", serif; font-weight: normal; }
+:root { --rosa: #fce4ec; --rosa-fuerte: #ff8fa3; --crema: #fdf6f0; --cafe: #5a453d; }
+body { background: var(--crema); font-family: 'EB Garamond', serif; margin: 0; color: #5d4037; }
+.times { font-family: "Times New Roman", serif; }
 
-/* Menú Lateral como en tu foto */
-.barra-lateral { height: 100%; width: 0; position: fixed; background: var(--cafe); transition: 0.4s; z-index: 2000; overflow: hidden; border-radius: 0 30px 30px 0; }
-.barra-lateral a { color: white; padding: 20px 30px; text-decoration: none; display: block; font-size: 18px; }
-.espacio-busqueda input { margin: 10px 30px; padding: 8px; border-radius: 20px; border: none; width: 180px; }
+/* Menú Lateral con Curva (Como en tu foto) */
+.barra-lateral { height: 100%; width: 0; position: fixed; background: var(--cafe); transition: 0.4s; z-index: 2000; overflow: hidden; border-radius: 0 40px 40px 0; }
+.barra-lateral a { color: #ffe5ec; padding: 20px 30px; text-decoration: none; display: block; font-size: 18px; }
 
-/* Editor Pro Pantalla Completa */
-.modal-full { position: fixed; inset: 0; background: var(--crema); z-index: 5000; display: none; flex-direction: column; padding: 40px; }
-.toolbar-editor { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; background: white; padding: 10px; border-radius: 10px; }
-.papel-escritura-pro { flex: 1; background: #fdfdfb; border-radius: 20px; padding: 40px; box-shadow: inset 0 0 20px rgba(0,0,0,0.02); font-size: 22px; outline: none; }
-.btn-publicar-rosa { background: var(--rosa-fuerte); color: white; border: none; padding: 10px 30px; border-radius: 20px; cursor: pointer; }
+/* Fresa con Brillo Rosa */
+#boton-fresa-menu { position: fixed; top: 20px; left: 20px; font-size: 38px; z-index: 3000; cursor: pointer; filter: drop-shadow(0 0 10px var(--rosa-fuerte)); }
 
-/* Configuración Card */
-.config-card-grande { max-width: 600px; margin: 50px auto; background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-.cfg-item { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid #eee; }
+/* Card de Editar Identidad */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; z-index: 6000; }
+.card-identidad { background: white; padding: 30px; border-radius: 30px; width: 350px; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.05); }
+.card-identidad input, .card-identidad textarea { width: 90%; margin: 8px 0; padding: 12px; border: 1px solid #eee; border-radius: 15px; background: #fdfdfd; }
+.btn-guardar-cambios { background: #ffb7c5; color: white; border: none; padding: 12px 30px; border-radius: 20px; margin-top: 15px; cursor: pointer; }

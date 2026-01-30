@@ -5,54 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Versa - Emely</title>
     <link rel="stylesheet" href="estilos.css">
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
 </head>
 <body>
     <audio id="sonidoTecla" src="https://www.soundjay.com/communication/typewriter-key-1.mp3" preload="auto"></audio>
-    
     <div id="boton-fresa-menu" onclick="toggleMenu()">🍓</div>
 
     <nav id="miSidebar" class="barra-lateral">
         <div style="height: 80px;"></div>
         <a href="#" onclick="abrirEditor()">Escribir Poema</a>
-        <div class="espacio-busqueda"><input type="text" placeholder="Buscar..."></div>
+        <div class="barra-busqueda-pro"><input type="text" placeholder="..."></div>
         <a href="#" onclick="mostrarSeccion('feed')">Mi Perfil</a>
         <a href="#" onclick="mostrarSeccion('borradores')">Borradores</a>
         <a href="#" onclick="mostrarSeccion('archivados')">Archivados</a>
         <a href="#" onclick="mostrarSeccion('config')">Configuración</a>
     </nav>
 
-    <header class="header-perfil">
+    <header class="header-emely">
         <h1 class="times">Emely en borrador</h1>
         <p>nada aquí está terminado</p>
-        <div class="tabs-feed">
+        <div class="tabs-pro">
             <button class="active">Tu Feed</button>
             <button>Favoritos</button>
             <button>Seguidos</button>
         </div>
     </header>
 
-    <main id="seccion-feed" class="contenedor-principal">
-        <div id="grid-dinamico" class="grid-poemas">
-            <p class="msj-vacio">Aún no hay poemas aquí.</p>
-        </div>
-    </main>
-
-    <section id="seccion-config" class="contenedor-principal" style="display:none;">
-        <div class="config-card-grande">
-            <h2 class="times">Configuración</h2>
-            <p class="sub">Ajusta tu espacio de escritura ✨</p>
-            <div class="cfg-item"><span>Sonido de tecleo</span><input type="checkbox" id="cfg-sonido" checked onchange="guardarAjustes()"></div>
-            <div class="cfg-item"><span>Animación de fresas</span><input type="checkbox" checked></div>
-            <div class="cfg-item"><span>Modo oscuro</span><input type="checkbox" id="cfg-oscuro" onchange="guardarAjustes()"></div>
-            <button class="btn-guardar-cfg">Guardar ajustes</button>
-            <div class="cfg-sec"><span>Privacidad</span><span>▸</span></div>
-            <div class="cfg-sec"><span>Sesión</span><button onclick="accionSesion()" id="btn-sesion">Cerrar sesión</button></div>
-        </div>
-    </section>
-
     <div id="modalEditor" class="modal-full" style="display:none;">
-        <div class="toolbar-editor">
+        <div class="toolbar-pro">
             <button onclick="formato('bold')">B</button>
             <button onclick="formato('italic')">I</button>
             <select onchange="formato('fontName', this.value)">
@@ -66,11 +45,30 @@
             <button class="btn-cerrar-ed" onclick="cerrarEditor()">✕</button>
         </div>
         <input type="text" id="tituloPoema" class="input-titulo-pro" placeholder="Título del alma...">
-        <div class="papel-escritura-pro" id="areaEscritura" contenteditable="true"></div>
+        <div class="papel-pro" id="areaEscritura" contenteditable="true"></div>
         <div class="footer-editor">
             <button class="btn-borrador">Guardar Borrador</button>
             <button class="btn-publicar-rosa" onclick="publicar()">Publicar Versos</button>
             <span class="contador">0 palabras</span>
+        </div>
+    </div>
+
+    <div id="modalIdentidad" class="modal-overlay">
+        <div class="card-identidad">
+            <div class="icon-fresa-mini">🌸</div>
+            <h2>Editar Identidad</h2>
+            <input type="text" id="nombre-id" value="Emely Martinez">
+            <input type="text" id="user-id" value="emely_m">
+            <textarea id="bio-id">ningujna</textarea>
+            <div class="btns-fotos">
+                <button>Portada</button>
+                <button>Perfil</button>
+            </div>
+            <div class="checks-id">
+                <label><input type="checkbox" checked> previsualizar</label>
+                <label><input type="checkbox" checked> bordes suaves</label>
+            </div>
+            <button class="btn-guardar-cambios">Guardar Cambios ✨</button>
         </div>
     </div>
 
