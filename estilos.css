@@ -6,10 +6,9 @@
   --crema:#fff5f8;
   --danger:#e05656;
   --primary:#b06e7a;
-  --ok:#5cb85c;
-
   --paper:#ffffff;
-  --shadow-color:#f7c9d4; /* cambia desde el editor */
+  --shadow-color:#f7c9d4; /* se cambia desde el editor */
+
   --elev-0:none;
   --elev-1:0 1px 3px rgba(30,30,30,.12), 0 1px 2px rgba(30,30,30,.08);
   --elev-2:0 4px 6px rgba(30,30,30,.12), 0 2px 4px rgba(30,30,30,.08);
@@ -23,81 +22,65 @@ body.theme-cafe-rosa{
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
 }
 
-/* Header */
+/* Header mínimo */
 .topbar{
-  position:sticky; top:0; z-index:30;
+  position:sticky; top:0; z-index:20;
   background:#fff; border-bottom:1px solid #f0e3e6;
   padding:10px 16px; display:flex; align-items:center; justify-content:center;
 }
 .brand-title{ margin:0; font-family:"Playfair Display", serif; }
 
-.auth-controls{
-  position:absolute; right:10px; top:6px; display:flex; gap:8px; align-items:center;
+/* Botón fresa flotante (abre/cierra sidebar) */
+.logo-float{
+  position:fixed; left:14px; top:14px; width:46px; height:46px; border-radius:50%;
+  border:none; cursor:pointer; z-index:50; display:grid; place-items:center;
+  background:#fff; color:#ff5f8f; box-shadow: var(--elev);
 }
-.auth-status{ font-size:13px; opacity:.8; }
-.email-login input{
-  padding:6px 10px; border:1px solid #e8dbe0; border-radius:10px; outline:none;
-}
-.btn{
-  border:none; padding:8px 12px; border-radius:12px; cursor:pointer;
-  background:#eee; color:#333; transition:.2s ease; box-shadow: var(--elev);
-}
-.btn:hover{ transform: translateY(-1px); }
-.btn.primary{ background: var(--primary); color:#fff; }
-.btn.outline{ background:#fff; border:1px solid var(--primary); color:var(--primary); }
-.btn.google{ background:#fff; border:1px solid #ddd; }
-.btn.danger{ background: var(--danger); color:#fff; }
-.btn[disabled]{ opacity:.5; cursor:not-allowed; transform:none !important; }
+.glow-strawberry{ font-size:22px; filter: drop-shadow(0 0 6px rgba(255,105,180,.6)); }
 
-.hidden{ display:none !important; }
-.visible{ display:block; }
-.section{ display:none; max-width:900px; margin:24px auto; padding:0 16px; }
-.subtle{ opacity:.7; margin-top:-6px; }
-
-/* Sidebar */
+/* Sidebar off-canvas */
 .sidebar{
-  position:fixed; left:16px; top:16px; bottom:16px; width:220px; border-radius:24px;
-  background:#3f2f2f; color:#fff; padding:12px; z-index:40; transition: width .22s ease, transform .22s ease;
-  display:flex; flex-direction:column; gap:10px;
-}
-.sidebar.compact{ width:72px; }
-.logo-btn{
-  width:44px; height:44px; border-radius:50%; border:none; cursor:pointer;
-  display:grid; place-items:center; background:#fff; color:#ff5f8f; margin-bottom:6px;
+  position:fixed; left:16px; top:76px; bottom:16px; width:230px; border-radius:24px;
+  background:#3f2f2f; color:#fff; padding:12px; z-index:40;
   box-shadow: var(--elev);
+  transform: translateX(-140%); transition: transform .22s ease;
 }
-.glow-strawberry{
-  font-size:22px; filter: drop-shadow(0 0 6px rgba(255, 105, 180, .6));
-}
-.menu{ display:flex; flex-direction:column; gap:6px; flex:1; }
+.sidebar.open{ transform: translateX(0); }
+.menu{ display:flex; flex-direction:column; gap:6px; height:100%; }
 .item{
   display:flex; align-items:center; gap:10px;
-  width:100%; border:none; background:transparent; color:#fff; cursor:pointer;
-  padding:10px 12px; border-radius:16px; transition:.2s ease;
+  border:none; background:transparent; color:#fff; cursor:pointer;
+  padding:10px 12px; border-radius:16px; transition:.2s ease; position:relative;
 }
 .item .icon{ width:22px; text-align:center; transition:.2s ease; }
-.item .text{ flex:1; text-align:left; }
 .item:hover{ background: rgba(255,255,255,.08); }
-.item:hover .icon{ color: #ff8fb1; } /* iconos rosita al pasar */
+.item:hover .icon{ color:#ff8fb1; } /* rosita al pasar */
 .item.active{ background: rgba(255,255,255,.14); }
-
-.sidebar.compact .text{ display:none; }
-
-/* Auth mini */
-.auth-mini{ margin-top:auto; display:flex; flex-direction:column; gap:6px; }
-.mini-status{ font-size:12px; opacity:.9; }
-.btn.mini{ padding:6px 8px; border-radius:10px; }
-
-/* Contenido principal desplazado por sidebar */
-#content{ margin-left:260px; transition: margin-left .22s ease; }
-.sidebar.compact ~ #content{ margin-left:96px; }
+/* Badge fresita notificaciones */
+.notif-badge{
+  position:absolute; right:10px; top:10px; font-size:14px;
+  filter: drop-shadow(0 0 6px rgba(255,105,180,.9));
+}
+.hidden{ display:none !important; }
 
 .elevation{ box-shadow: var(--elev); }
+.section{ display:none; max-width:980px; margin:22px auto; padding:0 16px; }
+.section.visible{ display:block; }
+.subtle{ opacity:.75; }
 
-/* Editor */
-.editor{ position:relative; background:linear-gradient(180deg, #fff, #fff); border-radius:20px; padding:20px; }
-.editor-title{
-  text-align:center; font-family:"Playfair Display", serif; font-size:26px; margin-bottom:10px; opacity:.9;
+/* Hero del feed (solo título + eslogan) */
+.hero{ text-align:center; padding-top:8vh; }
+.hero-title{ font-family:"Playfair Display", serif; font-size:44px; margin:0; }
+.hero-tag{ margin:6px 0 0; opacity:.8; }
+
+/* Editor full-screen */
+.editor-wrap{ max-width:1100px; }
+.editor{
+  position:relative; background:#fff; border-radius:20px; padding:18px;
+}
+.title-input{
+  width:100%; border:none; outline:none; font-family:"Playfair Display", serif;
+  font-size:26px; text-align:center; margin:6px 0 10px; background:transparent;
 }
 .toolbar{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:10px; }
 .pill{
@@ -107,23 +90,24 @@ body.theme-cafe-rosa{
 }
 .shadow-picker input{ width:28px; height:22px; padding:0; border:none; background:transparent; }
 .paper{
-  background: var(--paper); border-radius:16px; padding:12px;
-  /* Sombra de color al estilo de tu diseño (derecha e inferior) */
+  background:var(--paper); border-radius:16px; padding:12px;
+  min-height: calc(100vh - 280px);
+  /* Sombra de color tipo diseño base */
   box-shadow:
     10px 0 0 0 var(--shadow-color),
     0 10px 0 0 var(--shadow-color),
     0 0 0 1px #f0e3e6;
-  min-height:180px;
 }
-.paper:focus-within{ outline: 2px solid rgba(240, 227, 230, 0.8); }
 #editor-text{
-  width:100%; min-height:160px; border:none; outline:none; resize:vertical;
+  width:100%; min-height: calc(100vh - 320px); border:none; outline:none; resize:vertical;
   font-family: Inter, sans-serif; font-size:16px; line-height:1.6; background:transparent;
 }
-.editor-footer{ display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
+.editor-footer{
+  display:flex; align-items:center; justify-content:space-between; margin-top:10px;
+}
 .hint{ font-size:13px; opacity:.7; margin-top:6px; }
 
-/* Cards y listas */
+/* Listas, tarjetas */
 .list{ display:grid; grid-template-columns:1fr; gap:12px; margin-top:12px; }
 .card{
   position:relative; background:#fff; border:1px solid #f0e3e6; border-radius:16px; padding:12px;
@@ -138,10 +122,10 @@ body.theme-cafe-rosa{
   background:#fff0f4; border:1px solid #ffd3df; color:#b14d66; cursor:pointer;
 }
 
-/* Like pop & brillo */
+/* Like pop + brillo */
 .pop{
   position:absolute; transform: translate(-50%,-50%); pointer-events:none;
-  animation: pop 600ms ease-out forwards; font-size:20px; text-shadow: 0 0 10px rgba(255, 105, 180, .8);
+  animation: pop 600ms ease-out forwards; font-size:20px; text-shadow: 0 0 10px rgba(255,105,180,.9);
 }
 @keyframes pop{
   0%{ opacity:0; transform: translate(-50%,-20%) scale(.7);}
@@ -153,7 +137,7 @@ body.theme-cafe-rosa{
 #strawberry-rain{ position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:9999; }
 .strawberry{
   position:absolute; top:-40px; font-size:28px; animation: fall 3.2s linear forwards;
-  filter: drop-shadow(0 3px 4px rgba(0,0,0,.18)); text-shadow: 0 0 6px rgba(255, 105, 180, .8);
+  filter: drop-shadow(0 3px 4px rgba(0,0,0,.18)); text-shadow: 0 0 6px rgba(255,105,180,.8);
 }
 @keyframes fall{
   0%{ transform: translateY(-60px) rotate(0); opacity:0; }
@@ -168,8 +152,22 @@ body.theme-cafe-rosa{
 }
 .toast.hidden{ display:none; }
 
-/* Switch */
-.switch{ display:flex; align-items:center; gap:8px; margin:8px 0; }
+/* Controles comunes */
+.btn{
+  border:none; padding:8px 12px; border-radius:12px; cursor:pointer;
+  background:#eee; color:#333; transition:.2s ease; box-shadow: var(--elev);
+}
+.btn:hover{ transform: translateY(-1px); }
+.btn.primary{ background: var(--primary); color:#fff; }
+.btn.outline{ background:#fff; border:1px solid var(--primary); color:var(--primary); }
+.btn.google{ background:#fff; border:1px solid #ddd; }
+.btn.danger{ background: var(--danger); color:#fff; }
+.btn[disabled]{ opacity:.5; cursor:not-allowed; transform:none !important; }
+
+.row{ display:flex; gap:10px; flex-wrap:wrap; margin:8px 0; }
+.row > input, .row > textarea{
+  flex:1; padding:8px 10px; border:1px solid #e8dbe0; border-radius:10px; outline:none;
+}
 
 /* Flores de cerezo */
 .blossom-corners::before,
@@ -183,7 +181,7 @@ body.theme-cafe-rosa{
 }
 .blossom-corners::after{
   bottom:-6px; right:-6px; transform:rotate(180deg);
-  background-image:url("data:image/svg+xml;utf8,<svg fill='none' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'><g fill'%23f3a6bc'><circle cx='80' cy='80' r='8'/><circle cx='62' cy='88' r='6'/><circle cx='88' cy='62' r='6'/><circle cx='72' cy='66' r='7'/><circle cx='60' cy='72' r='5'/></g></svg>");
+  background-image:url("data:image/svg+xml;utf8,<svg fill='none' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'><g fill='%23f3a6bc'><circle cx='80' cy='80' r='8'/><circle cx='62' cy='88' r='6'/><circle cx='88' cy='62' r='6'/><circle cx='72' cy='66' r='7'/><circle cx='60' cy='72' r='5'/></g></svg>");
 }
 
 /* Modo oscuro */
@@ -194,9 +192,9 @@ body.theme-cafe-rosa{
 .dark .paper{ background:#1f1f1f; }
 .dark .btn.google{ background:#1f1f1f; color:#ddd; }
 
-/* Responsive básico */
-@media (max-width: 980px){
-  #content{ margin-left:96px; }
-  .sidebar{ width:180px; }
-  .sidebar.compact{ width:72px; }
+/* Responsive */
+@media (max-width: 820px){
+  .hero-title{ font-size:36px; }
+  .paper{ min-height: calc(100vh - 320px); }
+  #editor-text{ min-height: calc(100vh - 360px); }
 }

@@ -6,24 +6,26 @@
   <title>Versa 🍓</title>
 
   <!-- Fuentes -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;600&family=Garamond&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
 
-  <link rel="stylesheet" href="estilos.css">
+  <link rel="stylesheet" href="estilos.css"/>
 </head>
 <body class="theme-cafe-rosa">
-  <!-- Sidebar -->
+  <!-- Botón fresa (abre/cierra sidebar) -->
+  <button id="sidebarToggle" class="logo-float" title="Menú">
+    <span class="glow-strawberry">🍓</span>
+  </button>
+
+  <!-- Sidebar (off-canvas) -->
   <aside id="sidebar" class="sidebar elevation">
-    <button id="sidebarToggle" class="logo-btn" title="Abrir/cerrar">
-      <span class="glow-strawberry">🍓</span>
-    </button>
     <nav class="menu">
-      <button class="item active" data-section="feed" title="Tu Feed">
-        <span class="icon">🏠</span><span class="text">Feed</span>
+      <button class="item active" data-section="feed" title="Inicio">
+        <span class="icon"></span><span class="text">Feed</span>
       </button>
       <button class="item" data-section="editor" title="Escribir">
-        <span class="icon"></span><span class="text">Escribir Poema</span>
+        <span class="icon"></span><span class="text">Escribir</span>
       </button>
       <button class="item" data-section="profile" title="Perfil">
         <span class="icon"></span><span class="text">Mi Perfil</span>
@@ -34,46 +36,35 @@
       <button class="item" data-section="archived" title="Archivados">
         <span class="icon"></span><span class="text">Archivados</span>
       </button>
+      <button class="item" data-section="notifs" title="Notificaciones" id="btn-notifs">
+        <span class="icon"></span><span class="text">Notificaciones</span>
+        <span id="notif-badge" class="notif-badge hidden">🍓</span>
+      </button>
       <button class="item" data-section="config" title="Configuración">
         <span class="icon"></span><span class="text">Configuración</span>
       </button>
     </nav>
-
-    <!-- Auth compacto en la parte baja -->
-    <div class="auth-mini">
-      <div id="auth-mini-status" class="mini-status">Desconectada</div>
-      <button id="btn-login-google" class="btn google mini">Google</button>
-      <button id="btn-login-email-mini" class="btn mini">Email</button>
-      <button id="btn-logout" class="btn danger mini hidden">Salir</button>
-    </div>
   </aside>
 
-  <!-- Header superior -->
+  <!-- Encabezado superior simple -->
   <header class="topbar elevation">
     <h1 class="brand-title">Versa</h1>
-    <div id="auth-controls" class="auth-controls">
-      <span id="auth-status" class="auth-status">Desconectada</span>
-      <div class="email-login">
-        <input id="email" type="email" placeholder="correo@ejemplo.com">
-        <input id="password" type="password" placeholder="Contraseña">
-        <button id="btn-login-email" class="btn primary">Entrar</button>
-        <button id="btn-signup-email" class="btn outline">Crear cuenta</button>
-      </div>
-    </div>
   </header>
 
   <main id="content">
-    <!-- FEED -->
-    <section id="sec-feed" class="section visible">
-      <h2>Tu Feed</h2>
-      <p class="subtle">Publicaciones tuyas y de quienes sigues</p>
-      <div id="feed-list" class="list"></div>
+    <!-- FEED (solo título + eslogan) -->
+    <section id="sec-feed" class="section visible hero">
+      <h2 class="hero-title">Versa</h2>
+      <p class="hero-tag">Versos suaves en tonos café y rosa pastel.</p>
+      <!-- Si más adelante quieres mostrar posts aquí, lo activamos. -->
+      <div id="feed-list" class="list hidden"></div>
     </section>
 
-    <!-- EDITOR -->
-    <section id="sec-editor" class="section">
+    <!-- EDITOR FULL-SCREEN -->
+    <section id="sec-editor" class="section editor-wrap">
       <div class="editor blossom-corners elevation" id="editor">
-        <div class="editor-title">Título del alma…</div>
+        <!-- Título del poema -->
+        <input id="title-input" class="title-input" type="text" placeholder="Título del alma…"/>
 
         <!-- Toolbar -->
         <div class="toolbar">
@@ -83,25 +74,21 @@
             <option value="Garamond">Garamond</option>
             <option value="Playfair Display">Playfair</option>
           </select>
-          <button class="pill" data-align="left" title="Alinear a la izquierda">⬅️</button>
+          <button class="pill" data-align="left"  title="Alinear a la izquierda">⬅️</button>
           <button class="pill" data-align="center" title="Centrar">↔️</button>
           <button class="pill" data-align="right" title="Alinear a la derecha">➡️</button>
-
           <label class="pill shadow-picker" title="Sombra de color">
-            <span>Sombra</span>
-            <input id="shadow-color" type="color" value="#f7c9d4">
+            <span>Sombra</span><input id="shadow-color" type="color" value="#f7c9d4"/>
           </label>
         </div>
 
-        <!-- Papel del editor con sombra de color -->
+        <!-- Papel del editor (ocupa casi toda la pantalla) -->
         <div id="editor-paper" class="paper">
           <textarea id="editor-text" placeholder="Escribe tus versos aquí…"></textarea>
         </div>
 
         <div class="editor-footer">
-          <div class="left">
-            <span id="word-count">0 palabras</span>
-          </div>
+          <span id="word-count">0 palabras</span>
           <div class="right">
             <button id="btn-borrador" class="btn">Guardar borrador</button>
             <button id="btn-publicar" class="btn primary">Publicar Versos</button>
@@ -112,21 +99,36 @@
       </div>
     </section>
 
-    <!-- PERFIL -->
+    <!-- PERFIL (incluye login/registro + editar perfil) -->
     <section id="sec-profile" class="section">
       <h2>Mi Perfil</h2>
-      <div class="card blossom-corners elevation">
+
+      <div id="auth-box" class="card blossom-corners elevation">
+        <h3>Iniciar sesión o registrarse</h3>
+        <div class="row">
+          <input id="email" type="email" placeholder="correo@ejemplo.com"/>
+          <input id="password" type="password" placeholder="Contraseña"/>
+        </div>
+        <div class="row">
+          <button id="btn-login-email" class="btn primary">Entrar</button>
+          <button id="btn-signup-email" class="btn outline">Crear cuenta</button>
+          <button id="btn-login-google" class="btn google">Google</button>
+        </div>
+        <p id="auth-status" class="subtle">Desconectada</p>
+      </div>
+
+      <div id="profile-box" class="card blossom-corners elevation hidden">
         <div class="row">
           <label>Nombre</label>
-          <input id="p-name" type="text" placeholder="Tu nombre">
+          <input id="p-name" type="text" placeholder="Tu nombre"/>
         </div>
         <div class="row">
           <label>Usuario</label>
-          <input id="p-handle" type="text" placeholder="ej. emely_m">
+          <input id="p-handle" type="text" placeholder="ej. emely_m"/>
         </div>
         <div class="row">
           <label>Firma (se mostrará bajo tus poemas)</label>
-          <input id="p-signature" type="text" placeholder="— Emely">
+          <input id="p-signature" type="text" placeholder="— Emely"/>
         </div>
         <div class="row">
           <label>Bio</label>
@@ -134,6 +136,7 @@
         </div>
         <div class="row">
           <button id="btn-save-profile" class="btn primary">Guardar Cambios</button>
+          <button id="btn-logout" class="btn danger">Cerrar sesión</button>
         </div>
       </div>
     </section>
@@ -141,13 +144,21 @@
     <!-- BORRADORES -->
     <section id="sec-drafts" class="section">
       <h2>Borradores</h2>
+      <p class="subtle">Versos en espera</p>
       <div id="lista-borradores" class="list"></div>
     </section>
 
     <!-- ARCHIVADOS -->
     <section id="sec-archived" class="section">
       <h2>Archivados</h2>
+      <p class="subtle">Versos en descanso</p>
       <div id="lista-archivados" class="list"></div>
+    </section>
+
+    <!-- NOTIFICACIONES -->
+    <section id="sec-notifs" class="section">
+      <h2>Notificaciones</h2>
+      <div id="notif-list" class="list"></div>
     </section>
 
     <!-- CONFIGURACIÓN -->
@@ -155,30 +166,25 @@
       <h2>Configuración</h2>
       <div class="card elevation blossom-corners">
         <label class="switch">
-          <input id="toggle-tecleo" type="checkbox">
+          <input id="toggle-tecleo" type="checkbox"/>
           <span>Sonido de tecleo (máquina de escribir)</span>
         </label>
         <label class="switch">
-          <input id="toggle-fresas" type="checkbox" checked>
+          <input id="toggle-fresas" type="checkbox" checked/>
           <span>Animación de fresas</span>
         </label>
         <label class="switch">
-          <input id="toggle-dark" type="checkbox">
+          <input id="toggle-dark" type="checkbox"/>
           <span>Modo oscuro</span>
-        </label>
-        <label class="switch">
-          <input id="toggle-compact" type="checkbox">
-          <span>Sidebar compacta</span>
         </label>
       </div>
     </section>
   </main>
 
-  <footer class="footer">Hecho con café y fresas por Emely ☕🍓</footer>
+  <footer class="footer">Hecho con café y fresas  ☕🍓</footer>
 
-  <!-- Lluvia de fresas -->
+  <!-- Lluvia de fresas y toast -->
   <div id="strawberry-rain"></div>
-  <!-- Toast -->
   <div id="toast" class="toast hidden"></div>
 
   <script type="module" src="script.js"></script>
