@@ -1,77 +1,97 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Versa - Emely</title>
-    <link rel="stylesheet" href="estilos.css">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Emely • Blog 🍓</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="estilos.css"/>
 </head>
-<body>
-    <audio id="sonidoTecla" src="https://www.soundjay.com/communication/typewriter-key-1.mp3" preload="auto"></audio>
-    <div id="boton-fresa-menu" onclick="toggleMenu()">🍓</div>
-
-    <nav id="miSidebar" class="barra-lateral">
-        <div style="height: 80px;"></div>
-        <a href="#" onclick="abrirEditor()">Escribir Poema</a>
-        <div class="barra-busqueda-pro"><input type="text" placeholder="..."></div>
-        <a href="#" onclick="mostrarSeccion('feed')">Mi Perfil</a>
-        <a href="#" onclick="mostrarSeccion('borradores')">Borradores</a>
-        <a href="#" onclick="mostrarSeccion('archivados')">Archivados</a>
-        <a href="#" onclick="mostrarSeccion('config')">Configuración</a>
-    </nav>
-
-    <header class="header-emely">
-        <h1 class="times">Emely en borrador</h1>
-        <p>nada aquí está terminado</p>
-        <div class="tabs-pro">
-            <button class="active">Tu Feed</button>
-            <button>Favoritos</button>
-            <button>Seguidos</button>
-        </div>
-    </header>
-
-    <div id="modalEditor" class="modal-full" style="display:none;">
-        <div class="toolbar-pro">
-            <button onclick="formato('bold')">B</button>
-            <button onclick="formato('italic')">I</button>
-            <select onchange="formato('fontName', this.value)">
-                <option value="EB Garamond">Garamond</option>
-                <option value="Times New Roman">Times</option>
-            </select>
-            <button onclick="formato('justifyLeft')">⬅</button>
-            <button onclick="formato('justifyCenter')">⬆</button>
-            <button onclick="formato('justifyRight')">➡</button>
-            <span>Sombra <input type="color" id="colorSombraPoema" value="#ffc2d1"></span>
-            <button class="btn-cerrar-ed" onclick="cerrarEditor()">✕</button>
-        </div>
-        <input type="text" id="tituloPoema" class="input-titulo-pro" placeholder="Título del alma...">
-        <div class="papel-pro" id="areaEscritura" contenteditable="true"></div>
-        <div class="footer-editor">
-            <button class="btn-borrador">Guardar Borrador</button>
-            <button class="btn-publicar-rosa" onclick="publicar()">Publicar Versos</button>
-            <span class="contador">0 palabras</span>
-        </div>
+<body class="theme-cafe-rosa">
+  <header class="topbar elevation">
+    <div class="brand">
+      <span class="logo">🍓</span>
+      <h1>Emely</h1>
     </div>
 
-    <div id="modalIdentidad" class="modal-overlay">
-        <div class="card-identidad">
-            <div class="icon-fresa-mini">🌸</div>
-            <h2>Editar Identidad</h2>
-            <input type="text" id="nombre-id" value="Emely Martinez">
-            <input type="text" id="user-id" value="emely_m">
-            <textarea id="bio-id">ningujna</textarea>
-            <div class="btns-fotos">
-                <button>Portada</button>
-                <button>Perfil</button>
-            </div>
-            <div class="checks-id">
-                <label><input type="checkbox" checked> previsualizar</label>
-                <label><input type="checkbox" checked> bordes suaves</label>
-            </div>
-            <button class="btn-guardar-cambios">Guardar Cambios ✨</button>
-        </div>
-    </div>
+    <!-- Controles de sesión -->
+    <div id="auth-controls" class="auth-controls">
+      <span id="auth-status" class="auth-status">Desconectada</span>
 
-    <script type="module" src="script.js"></script>
+      <button id="btn-login-google" class="btn google">Iniciar con Google</button>
+      <div class="email-login">
+        <input id="email" type="email" placeholder="correo@ejemplo.com"/>
+        <input id="password" type="password" placeholder="Contraseña"/>
+        <button id="btn-login-email" class="btn primary">Entrar</button>
+        <button id="btn-signup-email" class="btn outline">Crear cuenta</button>
+      </div>
+      <button id="btn-logout" class="btn danger hidden">Salir</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Editor -->
+    <section class="editor blossom-corners elevation" id="editor">
+      <h2>Escribir ✍️</h2>
+      <textarea id="editor-text" placeholder="Escribe tu poema o texto..."></textarea>
+      <div class="editor-actions">
+        <button id="btn-publicar" class="btn primary" disabled>Publicar</button>
+        <button id="btn-borrador" class="btn" disabled>Guardar en borradores</button>
+      </div>
+      <p id="editor-hint" class="hint">Debes iniciar sesión para publicar o guardar.</p>
+    </section>
+
+    <!-- Publicados -->
+    <section class="publicados" id="publicados">
+      <h2>Publicados</h2>
+      <div id="lista-publicados" class="list"></div>
+    </section>
+
+    <!-- Borradores -->
+    <section class="borradores" id="borradores">
+      <h2>Borradores</h2>
+      <div id="lista-borradores" class="list"></div>
+    </section>
+
+    <!-- Archivados -->
+    <section class="archivados" id="archivados">
+      <h2>Archivados</h2>
+      <div id="lista-archivados" class="list"></div>
+    </section>
+
+    <!-- Configuración -->
+    <section class="config" id="config">
+      <h2>Configuración ⚙️</h2>
+      <label class="switch">
+        <input id="toggle-tecleo" type="checkbox"/>
+        <span>Sonido de tecleo</span>
+      </label>
+      <label class="switch">
+        <input id="toggle-fresas" type="checkbox" checked/>
+        <span>Animación de fresas</span>
+      </label>
+      <label class="switch">
+        <input id="toggle-dark" type="checkbox"/>
+        <span>Modo oscuro</span>
+      </label>
+      <div class="shadow-control">
+        <label for="range-shadow">Sombras</label>
+        <input id="range-shadow" type="range" min="0" max="3" step="1" value="2"/>
+        <span id="shadow-level" class="shadow-level">2</span>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">Hecho con café y fresas por Emely ☕🍓</footer>
+
+  <!-- contenedor para lluvia de fresas -->
+  <div id="strawberry-rain"></div>
+  <!-- toasts -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script type="module" src="script.js"></script>
 </body>
 </html>
