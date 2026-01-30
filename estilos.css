@@ -1,56 +1,18 @@
-:root {
-  --rosa: #ffc2d1; --rosa-fuerte: #ff8fa3; --crema: #fdf6f0;
-  --text: #5d4037; --sidebar-bg: #5a453d; --sidebar-text: #ffe5ec;
-  --card: #ffffff; --borde: #eaded7;
-}
+:root { --rosa: #fce4ec; --rosa-fuerte: #ff8fa3; --crema: #f5f5f0; --cafe: #5a453d; }
+body { background: var(--crema); font-family: 'EB Garamond', serif; margin: 0; }
+.times { font-family: "Times New Roman", serif; font-weight: normal; }
 
-body[data-theme="dark"] {
-  --crema: #1a1617; --text: #eee0e3; --card: #251e20; --borde: #3d2f33;
-}
+/* Menú Lateral como en tu foto */
+.barra-lateral { height: 100%; width: 0; position: fixed; background: var(--cafe); transition: 0.4s; z-index: 2000; overflow: hidden; border-radius: 0 30px 30px 0; }
+.barra-lateral a { color: white; padding: 20px 30px; text-decoration: none; display: block; font-size: 18px; }
+.espacio-busqueda input { margin: 10px 30px; padding: 8px; border-radius: 20px; border: none; width: 180px; }
 
-body { background: var(--crema); font-family: 'EB Garamond', serif; color: var(--text); margin: 0; transition: 0.4s; overflow-x: hidden; }
-.times { font-family: "Times New Roman", serif !important; }
+/* Editor Pro Pantalla Completa */
+.modal-full { position: fixed; inset: 0; background: var(--crema); z-index: 5000; display: none; flex-direction: column; padding: 40px; }
+.toolbar-editor { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; background: white; padding: 10px; border-radius: 10px; }
+.papel-escritura-pro { flex: 1; background: #fdfdfb; border-radius: 20px; padding: 40px; box-shadow: inset 0 0 20px rgba(0,0,0,0.02); font-size: 22px; outline: none; }
+.btn-publicar-rosa { background: var(--rosa-fuerte); color: white; border: none; padding: 10px 30px; border-radius: 20px; cursor: pointer; }
 
-/* Fresa con Brillo */
-#boton-fresa-menu {
-  position: fixed; top: 20px; left: 20px; font-size: 38px; cursor: pointer; z-index: 3000;
-  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); transition: 0.3s;
-}
-#boton-fresa-menu:hover { filter: drop-shadow(0 0 15px var(--rosa-fuerte)); transform: scale(1.1); }
-
-/* Sidebar */
-.barra-lateral {
-  height: 100%; width: 0; position: fixed; top: 0; left: 0; background: var(--sidebar-bg);
-  transition: 0.4s; z-index: 2000; display: flex; flex-direction: column; overflow: hidden;
-}
-.barra-lateral a { color: var(--sidebar-text); padding: 20px 30px; text-decoration: none; font-weight: bold; white-space: nowrap; }
-.barra-lateral a:hover { background: rgba(255,255,255,0.1); }
-
-/* Grid de Notas Post-it */
-.grid-poemas { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 20px; }
-.tarjeta-nota { 
-  background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid var(--borde); 
-  transition: 0.3s; position: relative; min-height: 200px; display: flex; flex-direction: column;
-}
-.tarjeta-nota:hover { transform: translateY(-5px); }
-
-/* Perfil */
-.perfil-card-pro { background: var(--card); border-radius: 25px; overflow: hidden; max-width: 600px; margin: 0 auto; border: 1px solid var(--borde); }
-.portada-pro { height: 160px; background: #eee; }
-.portada-pro img { width: 100%; height: 100%; object-fit: cover; }
-.avatar-pro { width: 110px; height: 110px; border-radius: 50%; border: 5px solid var(--card); margin: -55px auto 0; overflow: hidden; position: relative; }
-.avatar-pro img { width: 100%; height: 100%; object-fit: cover; }
-.perfil-info-pro { padding: 20px; text-align: center; }
-.stats-barra { margin-top: 15px; font-size: 0.9rem; opacity: 0.8; }
-
-/* Editor */
-.modal-full { position: fixed; inset: 0; background: var(--crema); z-index: 5000; display: none; flex-direction: column; padding: 20px; }
-.papel-contenedor { background: white; border-radius: 15px; padding: 30px; flex: 1; overflow-y: auto; border: 1px solid var(--borde); }
-.papel-escritura { outline: none; font-size: 1.2rem; min-height: 300px; line-height: 1.6; }
-
-/* UI */
-.btn-publish-main { background: var(--rosa-fuerte); color: white; border: none; padding: 15px; border-radius: 50px; font-weight: bold; margin-top: 15px; cursor: pointer; }
-.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 25px; border-radius: 50px; opacity: 0; transition: 0.3s; z-index: 9999; }
-.toast.show { opacity: 1; }
-.fresa-caida { position: fixed; top: -50px; z-index: 9999; animation: caer linear forwards; font-size: 24px; }
-@keyframes caer { to { transform: translateY(110vh) rotate(360deg); } }
+/* Configuración Card */
+.config-card-grande { max-width: 600px; margin: 50px auto; background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+.cfg-item { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid #eee; }
