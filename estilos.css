@@ -1,28 +1,52 @@
 :root {
-  --rosa: #ffc2d1; --rosa-fuerte: #ff8fa3; --crema: #fdf6f0; 
-  --sidebar-bg: #5a453d; --sidebar-text: #ffe5ec; --text: #5d4037;
+  --rosa: #ffc2d1; --rosa-fuerte: #ff8fa3; --crema: #fdf6f0;
+  --text: #5d4037; --sidebar-bg: #5a453d; --sidebar-text: #ffe5ec;
+  --card: #ffffff; --borde: #eaded7;
 }
-body { background: var(--crema); color: var(--text); font-family: 'EB Garamond', serif; margin: 0; }
+
+body[data-theme="dark"] {
+  --crema: #1a1617; --text: #eee0e3; --card: #251e20; --borde: #3d2f33;
+}
+
+body { background: var(--crema); font-family: 'EB Garamond', serif; color: var(--text); margin: 0; transition: 0.4s; }
 .times { font-family: "Times New Roman", serif; }
 
-/* Brillo de la Fresa */
+/* Fresa con brillo */
 #boton-fresa-menu {
-  position: fixed; top: 20px; left: 20px; font-size: 35px; z-index: 3000; cursor: pointer;
+  position: fixed; top: 20px; left: 20px; font-size: 35px; cursor: pointer; z-index: 3000;
   filter: drop-shadow(0 0 5px rgba(0,0,0,0.1)); transition: 0.3s;
 }
 #boton-fresa-menu:hover { filter: drop-shadow(0 0 15px var(--rosa-fuerte)); transform: scale(1.1); }
 
-/* Sidebar Firme */
+/* Sidebar */
 .barra-lateral {
   height: 100%; width: 0; position: fixed; top: 0; left: 0; background: var(--sidebar-bg);
-  transition: 0.4s; z-index: 2000; overflow: hidden; display: flex; flex-direction: column;
+  transition: 0.4s; z-index: 2000; display: flex; flex-direction: column; overflow: hidden;
 }
-.barra-lateral a { color: var(--sidebar-text); padding: 20px; text-decoration: none; white-space: nowrap; font-weight: bold; }
+.barra-lateral a { color: var(--sidebar-text); padding: 20px 30px; text-decoration: none; font-weight: bold; white-space: nowrap; }
+.barra-lateral a:hover { background: rgba(255,255,255,0.1); }
 
-/* Grid de Notas */
-.grid-poemas { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; padding: 20px; }
-.tarjeta-nota { background: white; padding: 20px; border-radius: 15px; border: 1px solid #eee; transition: 0.3s; }
+/* Feed Grid */
+.grid-poemas { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 20px; }
+.tarjeta-nota { background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid var(--borde); transition: 0.3s; position: relative; }
 
-/* Toast y Modales */
-.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 10px; opacity: 0; z-index: 9999; }
+/* Perfil Estilo Original */
+.perfil-card-pro { background: var(--card); border-radius: 20px; overflow: hidden; max-width: 600px; margin: 20px auto; border: 1px solid var(--borde); }
+.portada-pro { height: 150px; background: #eee; }
+.portada-pro img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-pro { width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--card); margin: -50px auto 0; overflow: hidden; position: relative; }
+.avatar-pro img { width: 100%; height: 100%; object-fit: cover; }
+.perfil-info-pro { padding: 20px; text-align: center; }
+
+/* Editor Papel */
+.modal-full { position: fixed; inset: 0; background: var(--crema); z-index: 5000; display: none; flex-direction: column; padding: 20px; }
+.papel-contenedor { 
+  background: white; border-radius: 15px; padding: 30px; flex: 1; overflow-y: auto; 
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.05); border: 1px solid var(--borde);
+}
+.papel-escritura { outline: none; font-size: 1.2rem; min-height: 200px; }
+
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #2d2326; color: white; padding: 10px 20px; border-radius: 50px; opacity: 0; transition: 0.3s; z-index: 9999; }
 .toast.show { opacity: 1; }
+.fresa-caida { position: fixed; top: -50px; z-index: 9999; animation: caer linear forwards; font-size: 24px; }
+@keyframes caer { to { transform: translateY(110vh) rotate(360deg); } }
