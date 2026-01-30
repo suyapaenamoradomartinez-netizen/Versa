@@ -1,53 +1,60 @@
 :root {
   --rosa: #ffc2d1; --rosa-fuerte: #ff8fa3; --rosa-claro: #fff5f7;
-  --cafe: #5d4037; --crema: #fdf6f0; --text: #5d4037;
-  --sidebar-bg: #5a453d; --sidebar-text: #ffe5ec;
-  --pill-bg: #f5ebe6; --borde: #eaded7; --card: #ffffff;
+  --cafe: #5d4037; --crema: #fdf6f0; --sidebar-bg:#5a453d;
+  --sidebar-text:#ffe5ec; --pill-bg:#f5ebe6; --accent:#ffc2d1;
+  --borde:#eaded7; --card:#ffffff; --card-soft:#fff8fb; --text:#5d4037;
 }
 
-body[data-theme="dark"] {
-  --crema: #1a1617; --text: #eee0e3; --card: #251e20;
-  --borde: #3d2f33; --rosa-claro: #322528; --sidebar-bg: #211a1c;
-  --pill-bg: #2d2426;
+body[data-theme="dark"]{
+  --crema:#1a1617; --text:#f7e9ee; --card:#2a2123;
+  --card-soft:#33282b; --borde:#3b2f32; --sidebar-bg:#2d2326;
+  --sidebar-text:#ffd9e4; --pill-bg:#3a2e31; --rosa-claro:#3b2b30;
 }
 
-body { background: var(--crema); font-family: 'EB Garamond', serif; color: var(--text); margin: 0; transition: background 0.4s; overflow-x: hidden; }
+body { background: var(--crema); font-family: 'EB Garamond', serif; color: var(--text); margin: 0; }
 .times { font-family: "Times New Roman", serif !important; }
 
-/* Botón Fresa */
-#boton-fresa-menu { position: fixed; top: 20px; left: 20px; font-size: 34px; cursor: pointer; z-index: 3000; transition: 0.3s; }
-#boton-fresa-menu:hover { transform: scale(1.1); }
-
-/* Sidebar */
-.barra-lateral { height: 100%; width: 0; position: fixed; top: 0; left: 0; background: var(--sidebar-bg); transition: 0.4s; z-index: 2000; display: flex; flex-direction: column; box-shadow: 10px 0 30px rgba(0,0,0,0.2); }
-.barra-lateral a { color: var(--sidebar-text); padding: 15px 30px; text-decoration: none; font-weight: 600; white-space: nowrap; border-radius: 0 50px 50px 0; margin: 5px 0; }
-.barra-lateral a:hover { background: var(--pill-bg); }
-
-/* Feed de Poemas */
-.contenedor-principal { max-width: 650px; margin: 0 auto; padding: 20px; }
-.poema-card { 
-  background: var(--card); padding: 35px; border-radius: 24px; border: 1px solid var(--borde); 
-  margin-bottom: 40px; transition: 0.4s; position: relative;
+/* BOTÓN FRESA (Brillante como antes) */
+#boton-fresa-menu {
+  position: fixed; top: 20px; left: 20px; font-size: 38px; cursor: pointer; z-index: 3000;
+  background: var(--pill-bg); border-radius: 16px; padding: 6px 10px;
+  filter: drop-shadow(0 4px 14px rgba(0,0,0,.2)); transition: .25s;
 }
-.poema-card .titulo { font-size: 2rem; margin: 0 0 15px 0; color: var(--text); }
-.poema-card .cita { text-align: right; font-style: italic; opacity: 0.7; margin-top: 20px; }
+#boton-fresa-menu:hover { filter: drop-shadow(0 0 15px var(--rosa-fuerte)); transform: translateY(-2px); }
 
-/* Editor de Texto */
-.modal-full { position: fixed; inset: 0; background: var(--crema); z-index: 5000; display: none; flex-direction: column; }
-.editor-wrapper { height: 100%; display: flex; flex-direction: column; padding: 20px; max-width: 900px; margin: 0 auto; width: 100%; }
+/* BARRA LATERAL */
+.barra-lateral {
+  height: 100%; width: 0; position: fixed; top: 0; left: 0; background: var(--sidebar-bg);
+  transition: 0.4s; z-index: 2000; display: flex; flex-direction: column; overflow: hidden;
+  border-top-right-radius: 28px; border-bottom-right-radius: 28px;
+}
+.barra-lateral a { color: var(--sidebar-text); padding: 12px 16px; text-decoration: none; font-weight: 600; white-space: nowrap; }
+.barra-lateral a.activo, .barra-lateral a:hover { background: var(--pill-bg); color: var(--sidebar-bg); }
+
+/* GRID POST-IT */
+.grid-poemas { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 20px; }
+.tarjeta-nota {
+  background: var(--card); padding: 25px; aspect-ratio: 1 / 1; border: 1px solid var(--borde);
+  border-radius: 16px; transition: 0.25s; cursor: pointer; position: relative;
+}
+.tarjeta-nota:hover { transform: translateY(-6px); }
+
+/* PERFIL */
+.perfil-card-pro { background: var(--card); border-radius: 26px; overflow: hidden; max-width: 640px; margin: 20px auto; border: 1px solid var(--borde); box-shadow: 0 12px 30px rgba(0,0,0,0.1); }
+.portada-pro { height: 180px; background: #eee; }
+.avatar-pro { width: 120px; height: 120px; border-radius: 50%; border: 6px solid var(--card); margin: -60px auto 0; overflow: hidden; position: relative; z-index: 5; }
+.portada-pro img, .avatar-pro img { width: 100%; height: 100%; object-fit: cover; }
+.perfil-info-pro { padding: 20px; text-align: center; }
+
+/* EDITOR */
+.modal-full { position: fixed; inset: 0; background: var(--rosa-claro); z-index: 5000; display: none; flex-direction: column; }
 .papel-contenedor { 
-  background: linear-gradient(var(--card), var(--card)) padding-box, 
-              repeating-linear-gradient(transparent, transparent 31px, var(--borde) 32px);
-  padding: 40px; border-radius: 20px; flex: 1; overflow-y: auto; box-shadow: inset 0 0 20px rgba(0,0,0,0.02);
+  background: linear-gradient(var(--card), var(--card)) padding-box, repeating-linear-gradient(var(--rosa-claro), var(--rosa-claro) 32px, var(--borde) 33px);
+  flex: 1; border-radius: 20px; padding: 30px; margin: 20px; overflow-y: auto;
 }
-.input-titulo-editor { border:none; background:transparent; font-size: 2.5rem; text-align:center; margin-bottom: 10px; color: var(--text); outline: none; }
-.barra-herramientas-pro { display: flex; justify-content: center; padding: 10px; gap: 20px; font-weight: bold; }
 
-/* Otros */
-.btn-publish-main { background: var(--rosa-fuerte); color: white; border: none; padding: 15px 40px; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 1.1rem; box-shadow: 0 10px 20px rgba(255,143,163,0.3); }
-.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #2d2326; color: white; padding: 12px 25px; border-radius: 50px; opacity: 0; transition: 0.4s; z-index: 9999; }
+/* OTROS */
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #2b2320; color: #fff; padding: 10px 16px; border-radius: 12px; opacity: 0; transition: .25s; z-index: 6000; }
 .toast.show { opacity: 1; }
-.fresa-caida { position: fixed; top: -50px; font-size: 28px; z-index: 9999; animation: caer linear forwards; }
+.fresa-caida { position: fixed; top: -50px; z-index: 9999; animation: caer linear forwards; font-size: 24px; }
 @keyframes caer { to { transform: translateY(110vh) rotate(360deg); } }
-.config-sep { border: 0; border-top: 1px dashed var(--borde); margin: 20px 0; }
- 
