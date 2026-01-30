@@ -3,93 +3,182 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Emely • Blog 🍓</title>
+  <title>Versa 🍓</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="estilos.css"/>
+  <!-- Fuentes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;600&family=Garamond&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="estilos.css">
 </head>
 <body class="theme-cafe-rosa">
-  <header class="topbar elevation">
-    <div class="brand">
-      <span class="logo">🍓</span>
-      <h1>Emely</h1>
-    </div>
+  <!-- Sidebar -->
+  <aside id="sidebar" class="sidebar elevation">
+    <button id="sidebarToggle" class="logo-btn" title="Abrir/cerrar">
+      <span class="glow-strawberry">🍓</span>
+    </button>
+    <nav class="menu">
+      <button class="item active" data-section="feed" title="Tu Feed">
+        <span class="icon">🏠</span><span class="text">Feed</span>
+      </button>
+      <button class="item" data-section="editor" title="Escribir">
+        <span class="icon"></span><span class="text">Escribir Poema</span>
+      </button>
+      <button class="item" data-section="profile" title="Perfil">
+        <span class="icon"></span><span class="text">Mi Perfil</span>
+      </button>
+      <button class="item" data-section="drafts" title="Borradores">
+        <span class="icon"></span><span class="text">Borradores</span>
+      </button>
+      <button class="item" data-section="archived" title="Archivados">
+        <span class="icon"></span><span class="text">Archivados</span>
+      </button>
+      <button class="item" data-section="config" title="Configuración">
+        <span class="icon"></span><span class="text">Configuración</span>
+      </button>
+    </nav>
 
-    <!-- Controles de sesión -->
+    <!-- Auth compacto en la parte baja -->
+    <div class="auth-mini">
+      <div id="auth-mini-status" class="mini-status">Desconectada</div>
+      <button id="btn-login-google" class="btn google mini">Google</button>
+      <button id="btn-login-email-mini" class="btn mini">Email</button>
+      <button id="btn-logout" class="btn danger mini hidden">Salir</button>
+    </div>
+  </aside>
+
+  <!-- Header superior -->
+  <header class="topbar elevation">
+    <h1 class="brand-title">Versa</h1>
     <div id="auth-controls" class="auth-controls">
       <span id="auth-status" class="auth-status">Desconectada</span>
-
-      <button id="btn-login-google" class="btn google">Iniciar con Google</button>
       <div class="email-login">
-        <input id="email" type="email" placeholder="correo@ejemplo.com"/>
-        <input id="password" type="password" placeholder="Contraseña"/>
+        <input id="email" type="email" placeholder="correo@ejemplo.com">
+        <input id="password" type="password" placeholder="Contraseña">
         <button id="btn-login-email" class="btn primary">Entrar</button>
         <button id="btn-signup-email" class="btn outline">Crear cuenta</button>
       </div>
-      <button id="btn-logout" class="btn danger hidden">Salir</button>
     </div>
   </header>
 
-  <main>
-    <!-- Editor -->
-    <section class="editor blossom-corners elevation" id="editor">
-      <h2>Escribir ✍️</h2>
-      <textarea id="editor-text" placeholder="Escribe tu poema o texto..."></textarea>
-      <div class="editor-actions">
-        <button id="btn-publicar" class="btn primary" disabled>Publicar</button>
-        <button id="btn-borrador" class="btn" disabled>Guardar en borradores</button>
+  <main id="content">
+    <!-- FEED -->
+    <section id="sec-feed" class="section visible">
+      <h2>Tu Feed</h2>
+      <p class="subtle">Publicaciones tuyas y de quienes sigues</p>
+      <div id="feed-list" class="list"></div>
+    </section>
+
+    <!-- EDITOR -->
+    <section id="sec-editor" class="section">
+      <div class="editor blossom-corners elevation" id="editor">
+        <div class="editor-title">Título del alma…</div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+          <button id="t-bold" class="pill" title="Negrita">B</button>
+          <select id="t-font" class="pill" title="Fuente">
+            <option value="Inter">Inter</option>
+            <option value="Garamond">Garamond</option>
+            <option value="Playfair Display">Playfair</option>
+          </select>
+          <button class="pill" data-align="left" title="Alinear a la izquierda">⬅️</button>
+          <button class="pill" data-align="center" title="Centrar">↔️</button>
+          <button class="pill" data-align="right" title="Alinear a la derecha">➡️</button>
+
+          <label class="pill shadow-picker" title="Sombra de color">
+            <span>Sombra</span>
+            <input id="shadow-color" type="color" value="#f7c9d4">
+          </label>
+        </div>
+
+        <!-- Papel del editor con sombra de color -->
+        <div id="editor-paper" class="paper">
+          <textarea id="editor-text" placeholder="Escribe tus versos aquí…"></textarea>
+        </div>
+
+        <div class="editor-footer">
+          <div class="left">
+            <span id="word-count">0 palabras</span>
+          </div>
+          <div class="right">
+            <button id="btn-borrador" class="btn">Guardar borrador</button>
+            <button id="btn-publicar" class="btn primary">Publicar Versos</button>
+          </div>
+        </div>
+
+        <p id="editor-hint" class="hint">Debes iniciar sesión para publicar o guardar.</p>
       </div>
-      <p id="editor-hint" class="hint">Debes iniciar sesión para publicar o guardar.</p>
     </section>
 
-    <!-- Publicados -->
-    <section class="publicados" id="publicados">
-      <h2>Publicados</h2>
-      <div id="lista-publicados" class="list"></div>
+    <!-- PERFIL -->
+    <section id="sec-profile" class="section">
+      <h2>Mi Perfil</h2>
+      <div class="card blossom-corners elevation">
+        <div class="row">
+          <label>Nombre</label>
+          <input id="p-name" type="text" placeholder="Tu nombre">
+        </div>
+        <div class="row">
+          <label>Usuario</label>
+          <input id="p-handle" type="text" placeholder="ej. emely_m">
+        </div>
+        <div class="row">
+          <label>Firma (se mostrará bajo tus poemas)</label>
+          <input id="p-signature" type="text" placeholder="— Emely">
+        </div>
+        <div class="row">
+          <label>Bio</label>
+          <textarea id="p-bio" rows="3" placeholder="Algo breve sobre ti…"></textarea>
+        </div>
+        <div class="row">
+          <button id="btn-save-profile" class="btn primary">Guardar Cambios</button>
+        </div>
+      </div>
     </section>
 
-    <!-- Borradores -->
-    <section class="borradores" id="borradores">
+    <!-- BORRADORES -->
+    <section id="sec-drafts" class="section">
       <h2>Borradores</h2>
       <div id="lista-borradores" class="list"></div>
     </section>
 
-    <!-- Archivados -->
-    <section class="archivados" id="archivados">
+    <!-- ARCHIVADOS -->
+    <section id="sec-archived" class="section">
       <h2>Archivados</h2>
       <div id="lista-archivados" class="list"></div>
     </section>
 
-    <!-- Configuración -->
-    <section class="config" id="config">
-      <h2>Configuración ⚙️</h2>
-      <label class="switch">
-        <input id="toggle-tecleo" type="checkbox"/>
-        <span>Sonido de tecleo</span>
-      </label>
-      <label class="switch">
-        <input id="toggle-fresas" type="checkbox" checked/>
-        <span>Animación de fresas</span>
-      </label>
-      <label class="switch">
-        <input id="toggle-dark" type="checkbox"/>
-        <span>Modo oscuro</span>
-      </label>
-      <div class="shadow-control">
-        <label for="range-shadow">Sombras</label>
-        <input id="range-shadow" type="range" min="0" max="3" step="1" value="2"/>
-        <span id="shadow-level" class="shadow-level">2</span>
+    <!-- CONFIGURACIÓN -->
+    <section id="sec-config" class="section">
+      <h2>Configuración</h2>
+      <div class="card elevation blossom-corners">
+        <label class="switch">
+          <input id="toggle-tecleo" type="checkbox">
+          <span>Sonido de tecleo (máquina de escribir)</span>
+        </label>
+        <label class="switch">
+          <input id="toggle-fresas" type="checkbox" checked>
+          <span>Animación de fresas</span>
+        </label>
+        <label class="switch">
+          <input id="toggle-dark" type="checkbox">
+          <span>Modo oscuro</span>
+        </label>
+        <label class="switch">
+          <input id="toggle-compact" type="checkbox">
+          <span>Sidebar compacta</span>
+        </label>
       </div>
     </section>
   </main>
 
   <footer class="footer">Hecho con café y fresas por Emely ☕🍓</footer>
 
-  <!-- contenedor para lluvia de fresas -->
+  <!-- Lluvia de fresas -->
   <div id="strawberry-rain"></div>
-  <!-- toasts -->
+  <!-- Toast -->
   <div id="toast" class="toast hidden"></div>
 
   <script type="module" src="script.js"></script>

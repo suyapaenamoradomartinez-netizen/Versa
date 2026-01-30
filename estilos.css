@@ -8,40 +8,39 @@
   --primary:#b06e7a;
   --ok:#5cb85c;
 
-  /* sombras (se controla con --elev-n vía JS) */
-  --elev-0: none;
-  --elev-1: 0 1px 3px rgba(30,30,30,.12), 0 1px 2px rgba(30,30,30,.08);
-  --elev-2: 0 4px 6px rgba(30,30,30,.12), 0 2px 4px rgba(30,30,30,.08);
-  --elev-3: 0 10px 15px rgba(30,30,30,.18), 0 4px 6px rgba(30,30,30,.12);
-  --elev: var(--elev-2);
+  --paper:#ffffff;
+  --shadow-color:#f7c9d4; /* cambia desde el editor */
+  --elev-0:none;
+  --elev-1:0 1px 3px rgba(30,30,30,.12), 0 1px 2px rgba(30,30,30,.08);
+  --elev-2:0 4px 6px rgba(30,30,30,.12), 0 2px 4px rgba(30,30,30,.08);
+  --elev-3:0 10px 15px rgba(30,30,30,.18), 0 4px 6px rgba(30,30,30,.12);
+  --elev:var(--elev-2);
 }
 
 *{ box-sizing:border-box; }
 body.theme-cafe-rosa{
-  background: var(--crema);
-  color: var(--choc);
+  margin:0; background: var(--crema); color: var(--choc);
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  margin:0;
 }
 
+/* Header */
 .topbar{
-  display:flex; justify-content:space-between; align-items:center;
-  padding:12px 16px; background:#fff; border-bottom:1px solid #eee;
-  position:sticky; top:0; z-index:20;
+  position:sticky; top:0; z-index:30;
+  background:#fff; border-bottom:1px solid #f0e3e6;
+  padding:10px 16px; display:flex; align-items:center; justify-content:center;
 }
-.brand{ display:flex; align-items:center; gap:8px; }
-.brand .logo{ font-size:20px; }
-.brand h1{ font-family:"Playfair Display", serif; margin:0; }
+.brand-title{ margin:0; font-family:"Playfair Display", serif; }
 
-.auth-controls{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-.auth-status{ font-size:14px; opacity:.85; }
+.auth-controls{
+  position:absolute; right:10px; top:6px; display:flex; gap:8px; align-items:center;
+}
+.auth-status{ font-size:13px; opacity:.8; }
 .email-login input{
-  padding:8px 10px; border:1px solid #ddd; border-radius:8px; margin-right:6px;
+  padding:6px 10px; border:1px solid #e8dbe0; border-radius:10px; outline:none;
 }
-
 .btn{
-  border:none; padding:8px 12px; border-radius:10px; cursor:pointer;
-  background: #eee; color:#333; transition:.2s ease; box-shadow: var(--elev);
+  border:none; padding:8px 12px; border-radius:12px; cursor:pointer;
+  background:#eee; color:#333; transition:.2s ease; box-shadow: var(--elev);
 }
 .btn:hover{ transform: translateY(-1px); }
 .btn.primary{ background: var(--primary); color:#fff; }
@@ -51,96 +50,153 @@ body.theme-cafe-rosa{
 .btn[disabled]{ opacity:.5; cursor:not-allowed; transform:none !important; }
 
 .hidden{ display:none !important; }
+.visible{ display:block; }
+.section{ display:none; max-width:900px; margin:24px auto; padding:0 16px; }
+.subtle{ opacity:.7; margin-top:-6px; }
+
+/* Sidebar */
+.sidebar{
+  position:fixed; left:16px; top:16px; bottom:16px; width:220px; border-radius:24px;
+  background:#3f2f2f; color:#fff; padding:12px; z-index:40; transition: width .22s ease, transform .22s ease;
+  display:flex; flex-direction:column; gap:10px;
+}
+.sidebar.compact{ width:72px; }
+.logo-btn{
+  width:44px; height:44px; border-radius:50%; border:none; cursor:pointer;
+  display:grid; place-items:center; background:#fff; color:#ff5f8f; margin-bottom:6px;
+  box-shadow: var(--elev);
+}
+.glow-strawberry{
+  font-size:22px; filter: drop-shadow(0 0 6px rgba(255, 105, 180, .6));
+}
+.menu{ display:flex; flex-direction:column; gap:6px; flex:1; }
+.item{
+  display:flex; align-items:center; gap:10px;
+  width:100%; border:none; background:transparent; color:#fff; cursor:pointer;
+  padding:10px 12px; border-radius:16px; transition:.2s ease;
+}
+.item .icon{ width:22px; text-align:center; transition:.2s ease; }
+.item .text{ flex:1; text-align:left; }
+.item:hover{ background: rgba(255,255,255,.08); }
+.item:hover .icon{ color: #ff8fb1; } /* iconos rosita al pasar */
+.item.active{ background: rgba(255,255,255,.14); }
+
+.sidebar.compact .text{ display:none; }
+
+/* Auth mini */
+.auth-mini{ margin-top:auto; display:flex; flex-direction:column; gap:6px; }
+.mini-status{ font-size:12px; opacity:.9; }
+.btn.mini{ padding:6px 8px; border-radius:10px; }
+
+/* Contenido principal desplazado por sidebar */
+#content{ margin-left:260px; transition: margin-left .22s ease; }
+.sidebar.compact ~ #content{ margin-left:96px; }
+
 .elevation{ box-shadow: var(--elev); }
 
-main{ max-width: 980px; margin: 20px auto; padding: 0 16px; }
-h2{ font-family:"Playfair Display", serif; margin-top:24px; }
-
-.editor textarea{
-  width:100%; min-height:150px; resize:vertical;
-  border:1px solid #f0e3e6; border-radius:14px; padding:12px; outline:none;
-  background:#fff;
+/* Editor */
+.editor{ position:relative; background:linear-gradient(180deg, #fff, #fff); border-radius:20px; padding:20px; }
+.editor-title{
+  text-align:center; font-family:"Playfair Display", serif; font-size:26px; margin-bottom:10px; opacity:.9;
 }
-
-.editor-actions{ display:flex; gap:10px; margin-top:8px; }
+.toolbar{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:10px; }
+.pill{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:8px 10px; border-radius:999px; border:1px solid #f0e3e6; background:#fff;
+  cursor:pointer; font-size:14px;
+}
+.shadow-picker input{ width:28px; height:22px; padding:0; border:none; background:transparent; }
+.paper{
+  background: var(--paper); border-radius:16px; padding:12px;
+  /* Sombra de color al estilo de tu diseño (derecha e inferior) */
+  box-shadow:
+    10px 0 0 0 var(--shadow-color),
+    0 10px 0 0 var(--shadow-color),
+    0 0 0 1px #f0e3e6;
+  min-height:180px;
+}
+.paper:focus-within{ outline: 2px solid rgba(240, 227, 230, 0.8); }
+#editor-text{
+  width:100%; min-height:160px; border:none; outline:none; resize:vertical;
+  font-family: Inter, sans-serif; font-size:16px; line-height:1.6; background:transparent;
+}
+.editor-footer{ display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
 .hint{ font-size:13px; opacity:.7; margin-top:6px; }
 
-.list{ display:grid; grid-template-columns: 1fr; gap:12px; margin-top:10px; }
+/* Cards y listas */
+.list{ display:grid; grid-template-columns:1fr; gap:12px; margin-top:12px; }
 .card{
-  background:#fff; border:1px solid #f0e3e6; border-radius:16px; padding:12px; position:relative;
-  overflow:hidden; box-shadow: var(--elev);
+  position:relative; background:#fff; border:1px solid #f0e3e6; border-radius:16px; padding:12px;
 }
-.card .meta{ font-size:12px; opacity:.75; display:flex; gap:8px; flex-wrap:wrap; }
-.card .content{ margin:8px 0 10px; line-height:1.5; white-space:pre-wrap; }
-.card .actions{ display:flex; gap:8px; flex-wrap:wrap; }
-.card .pill{
+.card .meta{ font-size:12px; opacity:.7; display:flex; gap:8px; flex-wrap:wrap; }
+.card .title{ font-family:"Playfair Display", serif; font-size:22px; margin:4px 0; }
+.card .content{ line-height:1.6; white-space:pre-wrap; }
+.card .signature{ margin-top:8px; font-style:italic; opacity:.85; }
+.card .actions{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+.pill-btn{
   display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px;
-  background: #fff0f4; border:1px solid #ffd3df; color:#b14d66; font-size:13px;
-}
-.card .pill .count{ font-weight:600; }
-
-.config .switch{ display:flex; align-items:center; gap:8px; margin:8px 0; }
-.shadow-control{ display:flex; align-items:center; gap:10px; margin-top:6px; }
-.shadow-level{ font-weight:600; }
-
-.footer{
-  margin:40px 0 20px; text-align:center; opacity:.8;
+  background:#fff0f4; border:1px solid #ffd3df; color:#b14d66; cursor:pointer;
 }
 
-/* Modo oscuro */
-.dark{
-  background:#171717; color:#eee;
-}
-.dark .topbar{ background:#1f1f1f; border-color:#2a2a2a; }
-.dark .editor textarea{ background:#1f1f1f; border-color:#2a2a2a; color:#eee; }
-.dark .card{ background:#1f1f1f; border-color:#2a2a2a; }
-.dark .btn.google{ background:#1f1f1f; color:#ddd; }
-
-/* Flores de cerezo en esquinas */
-.blossom-corners::before,
-.blossom-corners::after{
-  content:"";
-  position:absolute; width:80px; height:80px; pointer-events:none; opacity:.25;
-  background-repeat:no-repeat; background-size:contain;
-}
-.blossom-corners::before{
-  top:-6px; left:-6px;
-  background-image: url("data:image/svg+xml;utf8,<svg fill='none' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'><g fill='%23f3a6bc'><circle cx='20' cy='20' r='8'/><circle cx='38' cy='12' r='6'/><circle cx='12' cy='38' r='6'/><circle cx='28' cy='34' r='7'/><circle cx='40' cy='28' r='5'/></g></svg>");
-}
-.blossom-corners::after{
-  bottom:-6px; right:-6px;
-  transform: rotate(180deg);
-  background-image: url("data:image/svg+xml;utf8,<svg fill='none' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'><g fill='%23f3a6bc'><circle cx='80' cy='80' r='8'/><circle cx='62' cy='88' r='6'/><circle cx='88' cy='62' r='6'/><circle cx='72' cy='66' r='7'/><circle cx='60' cy='72' r='5'/></g></svg>");
-}
-
-/* 🍓 Lluvia de fresas al crear perfil */
-#strawberry-rain{
-  position: fixed; inset:0; pointer-events:none; overflow:hidden; z-index:9999; }
-.strawberry{
-  position:absolute; top:-40px; font-size:28px; animation: fall 3.2s linear forwards;
-  filter: drop-shadow(0 3px 3px rgba(0,0,0,.15));
-}
-@keyframes fall{
-  0%{ transform: translateY(-60px) rotate(0deg); opacity:0; }
-  10%{ opacity:1; }
-  100%{ transform: translateY(120vh) rotate(90deg); opacity:.9; }
-}
-
-/* 🍓 Pop de fresas al dar like */
+/* Like pop & brillo */
 .pop{
-  position:absolute; transform: translate(-50%, -50%); pointer-events:none;
-  animation: pop 600ms ease-out forwards; font-size:18px;
+  position:absolute; transform: translate(-50%,-50%); pointer-events:none;
+  animation: pop 600ms ease-out forwards; font-size:20px; text-shadow: 0 0 10px rgba(255, 105, 180, .8);
 }
 @keyframes pop{
-  0%{ opacity:0; transform: translate(-50%, -20%) scale(.7); }
-  50%{ opacity:1; transform: translate(-50%, -60%) scale(1.1); }
-  100%{ opacity:0; transform: translate(-50%, -100%) scale(.9); }
+  0%{ opacity:0; transform: translate(-50%,-20%) scale(.7);}
+  50%{ opacity:1; transform: translate(-50%,-60%) scale(1.15);}
+  100%{ opacity:0; transform: translate(-50%,-100%) scale(.9);}
+}
+
+/* Lluvia de fresas */
+#strawberry-rain{ position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:9999; }
+.strawberry{
+  position:absolute; top:-40px; font-size:28px; animation: fall 3.2s linear forwards;
+  filter: drop-shadow(0 3px 4px rgba(0,0,0,.18)); text-shadow: 0 0 6px rgba(255, 105, 180, .8);
+}
+@keyframes fall{
+  0%{ transform: translateY(-60px) rotate(0); opacity:0; }
+  10%{ opacity:1; }
+  100%{ transform: translateY(120vh) rotate(90deg); opacity:.95; }
 }
 
 /* Toast */
 .toast{
-  position: fixed; left:50%; transform: translateX(-50%);
-  bottom: 18px; padding:10px 14px; border-radius:12px; color:#fff;
-  background: rgba(176,110,122,.95); z-index:10000; box-shadow: var(--elev-2);
+  position:fixed; left:50%; transform:translateX(-50%); bottom:18px; padding:10px 14px;
+  border-radius:12px; color:#fff; background:rgba(176,110,122,.95); z-index:10000; box-shadow: var(--elev-2);
 }
 .toast.hidden{ display:none; }
+
+/* Switch */
+.switch{ display:flex; align-items:center; gap:8px; margin:8px 0; }
+
+/* Flores de cerezo */
+.blossom-corners::before,
+.blossom-corners::after{
+  content:""; position:absolute; width:80px; height:80px; pointer-events:none; opacity:.22;
+  background-repeat:no-repeat; background-size:contain;
+}
+.blossom-corners::before{
+  top:-6px; left:-6px;
+  background-image:url("data:image/svg+xml;utf8,<svg fill='none' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'><g fill='%23f3a6bc'><circle cx='20' cy='20' r='8'/><circle cx='38' cy='12' r='6'/><circle cx='12' cy='38' r='6'/><circle cx='28' cy='34' r='7'/><circle cx='40' cy='28' r='5'/></g></svg>");
+}
+.blossom-corners::after{
+  bottom:-6px; right:-6px; transform:rotate(180deg);
+  background-image:url("data:image/svg+xml;utf8,<svg fill='none' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'><g fill'%23f3a6bc'><circle cx='80' cy='80' r='8'/><circle cx='62' cy='88' r='6'/><circle cx='88' cy='62' r='6'/><circle cx='72' cy='66' r='7'/><circle cx='60' cy='72' r='5'/></g></svg>");
+}
+
+/* Modo oscuro */
+.dark{ background:#171717; color:#eee; }
+.dark .topbar{ background:#1f1f1f; border-color:#2a2a2a; }
+.dark .card{ background:#1f1f1f; border-color:#2a2a2a; }
+.dark .editor{ background:#1f1f1f; }
+.dark .paper{ background:#1f1f1f; }
+.dark .btn.google{ background:#1f1f1f; color:#ddd; }
+
+/* Responsive básico */
+@media (max-width: 980px){
+  #content{ margin-left:96px; }
+  .sidebar{ width:180px; }
+  .sidebar.compact{ width:72px; }
+}
