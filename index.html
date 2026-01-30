@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Versa</title>
+  <title>Versa - Red Poética</title>
   <link rel="stylesheet" href="estilos.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=EB+Garamond:ital,wght@0,400;1,400&family=Playfair+Display:ital,wght@0,500;0,700;1,600&display=swap" rel="stylesheet">
 </head>
 <body>
   <audio id="sonidoTecla" src="https://www.soundjay.com/communication/typewriter-key-1.mp3" preload="auto"></audio>
@@ -14,7 +14,7 @@
   <div id="boton-fresa-menu" onclick="toggleMenu()">🍓</div>
 
   <nav id="miSidebar" class="barra-lateral">
-    <div style="height: 80px;"></div>
+    <div style="height: 60px;"></div>
     <a href="javascript:void(0)" onclick="abrirEditor()">Escribir Poema</a>
     <a href="javascript:void(0)" onclick="mostrarSeccion('feed')">Explorar Feed</a>
     <a href="javascript:void(0)" onclick="mostrarSeccion('perfil')">Mi Perfil</a>
@@ -23,7 +23,7 @@
 
   <header class="header-principal">
     <h1 class="times">Versa</h1>
-    <p>nada aquí concluye</p>
+    <p>donde la poesía vive</p>
   </header>
 
   <main id="seccion-feed" class="contenedor-principal">
@@ -35,8 +35,11 @@
       <div class="portada-pro"><img src="https://images.unsplash.com/photo-1518005020951-eccb494ad742?q=80&w=1000"></div>
       <div class="avatar-pro"><img src="https://i.pinimg.com/736x/8b/16/7a/8b167af653c2399dd93b952a48740620.jpg"></div>
       <div class="perfil-info-pro">
-        <h2 class="times">Emely</h2>
-        <p>Escribo para no olvidarme.</p>
+        <h2 id="perf-nombre" class="times">Emely</h2>
+        <p id="perf-bio">Escribo para no olvidarme.</p>
+        <div class="stats-perfil">
+          <span><b>0</b> Seguidores</span> • <span><b>0</b> Siguiendo</span>
+        </div>
       </div>
     </div>
   </section>
@@ -45,35 +48,42 @@
     <div class="config-wrap">
       <h2 class="times">Ajustes</h2>
       <div class="config-row">
-        <span>Sonido</span> <input type="checkbox" id="cfg-sonido" checked onchange="guardarAjustes()">
+        <label>Sonido de Máquina</label>
+        <input type="checkbox" id="cfg-sonido" checked onchange="guardarAjustes()">
       </div>
       <div class="config-row">
-        <span>Modo Oscuro</span> <input type="checkbox" id="cfg-oscuro" onchange="guardarAjustes()">
+        <label>Modo Oscuro</label>
+        <input type="checkbox" id="cfg-oscuro" onchange="guardarAjustes()">
       </div>
-      <button class="btn-perfil-edit" style="width:100%; margin-top:20px;" onclick="accionSesion()" id="btn-sesion">Iniciar Sesión</button>
+      <hr>
+      <button class="btn-perfil-edit" style="width:100%" onclick="accionSesion()" id="btn-sesion">Iniciar Sesión</button>
     </div>
   </section>
 
   <div id="modalLogin" class="modal-overlay" style="display:none;">
     <div class="modal-estetico-card">
-      <h2 class="times">Entrar</h2>
+      <span class="btn-cerrar-x" onclick="cerrarModalLogin()">&times;</span>
+      <h2 class="times">Unirse a Versa</h2>
       <input type="email" id="login-usuario" placeholder="Correo">
       <input type="password" id="login-pass" placeholder="Contraseña">
-      <button onclick="iniciarSesion()">Entrar</button>
-      <button onclick="registrarUsuario()" style="background:var(--rosa)">Registrar</button>
-      <button onclick="cerrarModalLogin()">Cerrar</button>
+      <button class="btn-guardar-magico" onclick="iniciarSesion()">Entrar</button>
+      <button class="btn-guardar-magico" style="background:var(--rosa)" onclick="registrarUsuario()">Registrar</button>
     </div>
   </div>
 
   <div id="modalEditor" class="modal-full" style="display:none;">
     <div class="editor-wrapper">
-      <input type="text" id="tituloPoema" class="times" placeholder="Título...">
-      <input type="color" id="colorSombraPoema" value="#ffc2d1">
-      <div class="papel-contenedor">
-        <div id="areaEscritura" contenteditable="true" class="papel-escritura"></div>
+      <div class="editor-header">
+        <input type="text" id="tituloPoema" class="times" placeholder="Título...">
+        <span onclick="cerrarEditor()" style="cursor:pointer; font-size:2rem;">&times;</span>
       </div>
-      <button onclick="publicar()">Publicar ✨</button>
-      <button onclick="cerrarEditor()">Cancelar</button>
+      <div class="herramientas">
+        Sombra: <input type="color" id="colorSombraPoema" value="#ffc2d1">
+      </div>
+      <div class="papel-contenedor">
+        <div id="areaEscritura" contenteditable="true" class="papel-escritura" placeholder="Tus versos aquí..."></div>
+      </div>
+      <button class="btn-publish-main" onclick="publicar()">Publicar en la Red ✨</button>
     </div>
   </div>
 
