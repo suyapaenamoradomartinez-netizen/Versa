@@ -1,211 +1,245 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Versa 🍓</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Versa</title>
 
-  <!-- Fuentes -->
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet"/>
+  <!-- CSS del proyecto -->
+  <link rel="stylesheet" href="estilos.css" />
 
-  <link rel="stylesheet" href="estilos.css"/>
+  <!-- Fuentes de Google -->
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=EB+Garamond:ital,wght@0,400;1,400&family=Playfair+Display:ital,wght@0,500;0,700;1,600&display=swap" rel="stylesheet">
 </head>
-<body class="theme-cafe-rosa">
-  <!-- Botón fresa (abre/cierra sidebar) -->
-  <button id="sidebarToggle" class="logo-float" title="Menú">
-    <span class="glow-strawberry">🍓</span>
-  </button>
 
-  <!-- Sidebar (off-canvas) -->
-  <aside id="sidebar" class="sidebar elevation">
-    <nav class="menu">
-      <button class="item active" data-section="feed" title="Inicio">
-        <span class="icon"></span><span class="text">Feed</span>
-      </button>
-      <button class="item" data-section="editor" title="Escribir">
-        <span class="icon"></span><span class="text">Escribir</span>
-      </button>
-      <button class="item" data-section="profile" title="Perfil">
-        <span class="icon"></span><span class="text">Mi Perfil</span>
-      </button>
-      <button class="item" data-section="drafts" title="Borradores">
-        <span class="icon"></span><span class="text">Borradores</span>
-      </button>
-      <button class="item" data-section="archived" title="Archivados">
-        <span class="icon"></span><span class="text">Archivados</span>
-      </button>
-      <button class="item" data-section="notifs" title="Notificaciones" id="btn-notifs">
-        <span class="icon"></span><span class="text">Notificaciones</span>
-        <span id="notif-badge" class="notif-badge hidden">🍓</span>
-      </button>
-      <button class="item" data-section="config" title="Configuración">
-        <span class="icon"></span><span class="text">Configuración</span>
-      </button>
-    </nav>
-  </aside>
+<body>
+  <!-- Sonido máquina de escribir (suavizado por JS) -->
+  <audio id="sonidoTecla" src="https://www.soundjay.com/communication/typewriter-key-1.mp3" preload="auto"></audio>
 
-  <!-- Encabezado superior minimal -->
-  <header class="topbar elevation">
-    <h1 class="brand-title">Versa</h1>
-  </header>
+  <!-- Contenedor de lluvia de fresas -->
+  <div id="contenedor-lluvia"></div>
 
-  <main id="content">
-    <!-- FEED (hero limpio) -->
-    <section id="sec-feed" class="section visible hero">
-      <h2 class="hero-title">Versa</h2>
-      <p class="hero-tag">Donde la tinta descansa en rosa y café.</p>
-      <div id="feed-list" class="list hidden"></div>
-    </section>
+  <!-- Botón menú -->
+  <div
+    id="boton-fresa-menu"
+    role="button"
+    aria-controls="miSidebar"
+    aria-expanded="false"
+    tabindex="0"
+    onclick="toggleMenu()">🍓</div>
 
-    <!-- EDITOR FULL-SCREEN -->
-    <section id="sec-editor" class="section editor-wrap">
-      <div class="editor blossom-corners elevation" id="editor">
-        <input id="title-input" class="title-input" type="text" placeholder="Título del alma…"/>
+  <!-- Sidebar -->
+  <nav id="miSidebar" class="barra-lateral" role="navigation" aria-label="Secciones">
+    <div style="height: 80px;"></div>
+    <a href="javascript:void(0)" onclick="abrirEditor()">Escribir Poema</a>
+    <a href="javascript:void(0)" onclick="mostrarSeccion('feed')">Explorar Feed</a>
+    <a href="javascript:void(0)" onclick="mostrarSeccion('perfil')">Mi Perfil</a>
+    <a href="javascript:void(0)" onclick="mostrarSeccion('borradores')">Borradores</a>
+    <a href="javascript:void(0)" onclick="mostrarSeccion('archivados')">Archivados</a>
+    <a href="javascript:void(0)" onclick="mostrarSeccion('config')">Configuración</a>
+  </nav>
 
-        <!-- Toolbar -->
-        <div class="toolbar">
-          <button id="t-bold" class="pill" title="Negrita">B</button>
-          <select id="t-font" class="pill" title="Fuente">
-            <option value="Inter">Inter</option>
-            <option value="Garamond">Garamond</option>
-            <option value="Playfair Display">Playfair</option>
-          </select>
-          <button class="pill" data-align="left"  title="Alinear a la izquierda">⬅️</button>
-          <button class="pill" data-align="center" title="Centrar">↔️</button>
-          <button class="pill" data-align="right" title="Alinear a la derecha">➡️</button>
-          <label class="pill shadow-picker" title="Sombra de color">
-            <span>Sombra</span><input id="shadow-color" type="color" value="#f7c9d4"/>
-          </label>
-        </div>
+  <!-- Header (se oculta en Borradores/Archivados vía JS) -->
+  <header class="header-principal">
+    <h1 id="titulo-pagina" class="times">Versa</h1>
+    <p id="subtitulo-pagina">nada aquí concluye</p>
 
-        <!-- Papel del editor (pantalla alta) -->
-        <div id="editor-paper" class="paper">
-          <textarea id="editor-text" placeholder="Escribe tus versos aquí…"></textarea>
-        </div>
+    <div id="navegacion-tabs" class="tabs-poesia" role="tablist" aria-label="Navegación de feed">
+      <button id="btn-feed" class="tab-btn active" onclick="mostrarSeccion('feed')" role="tab" aria-selected="true">Tu Feed</button>
+      <button id="btn-favoritos" class="tab-btn" onclick="mostrarSeccion('favoritos')" role="tab" aria-selected="false">Favoritos</button>
+      <button id="btn-seguidos" class="tab-btn" onclick="mostrarSeccion('seguidos')" role="tab" aria-selected="false">Seguidos</button>
+    </div>
+  </header>
 
-        <div class="editor-footer">
-          <span id="word-count">0 palabras</span>
-          <div class="right">
-            <button id="btn-borrador" class="btn">Guardar borrador</button>
-            <button id="btn-publicar" class="btn primary">Publicar Versos</button>
-          </div>
-        </div>
-        <p id="editor-hint" class="hint">Debes iniciar sesión para publicar o guardar.</p>
-      </div>
-    </section>
+  <!-- Secciones principales -->
+  <main id="seccion-feed" class="contenedor-principal"></main>
+  <main id="seccion-favoritos" class="contenedor-principal" style="display:none;"></main>
+  <main id="seccion-seguidos" class="contenedor-principal" style="display:none;"></main>
 
-    <!-- PERFIL (login/registro + tarjeta y modal de identidad) -->
-    <section id="sec-profile" class="section">
-      <h2>Mi Perfil</h2>
+  <!-- Borradores y archivados con encabezado + grid interno -->
+  <main id="seccion-borradores" class="contenedor-principal" style="display:none;"></main>
+  <main id="seccion-archivados" class="contenedor-principal" style="display:none;"></main>
 
-      <!-- Caja de autenticación (solo si no hay sesión) -->
-      <div id="auth-box" class="card blossom-corners elevation">
-        <h3>Iniciar sesión o registrarse</h3>
-        <div class="row">
-          <input id="email" type="email" placeholder="correo@ejemplo.com"/>
-          <input id="password" type="password" placeholder="Contraseña"/>
-        </div>
-        <div class="row">
-          <button id="btn-login-email" class="btn primary">Entrar</button>
-          <button id="btn-signup-email" class="btn outline">Crear cuenta</button>
-          <button id="btn-login-google" class="btn google">Google</button>
-        </div>
-        <p id="auth-status" class="subtle">Desconectada</p>
-      </div>
+  <!-- Perfil -->
+  <section id="seccion-perfil" class="contenedor-principal" style="display:none;">
+    <div class="perfil-card-pro">
+      <div class="portada-pro">
+        <img id="img-portada" src="" loading="lazy" alt="Portada del perfil">
+      </div>
 
-      <!-- Tarjeta de perfil (solo si hay sesión) -->
-      <div id="profile-box" class="card blossom-corners elevation hidden">
-        <div class="row">
-          <div class="profile-col">
-            <div class="avatar-circle">EM</div>
-            <div class="profile-meta">
-              <div id="profile-name" class="profile-name">—</div>
-              <div id="profile-handle" class="profile-handle">@—</div>
-              <div id="profile-signature" class="profile-signature">—</div>
-            </div>
-          </div>
-          <div class="profile-actions">
-            <button id="btn-open-profile-modal" class="btn">Editar identidad</button>
-            <button id="btn-logout" class="btn danger">Cerrar sesión</button>
-          </div>
-        </div>
-        <div class="row">
-          <p id="profile-bio" class="profile-bio subtle"></p>
-        </div>
-      </div>
-    </section>
+      <div class="avatar-pro">
+        <img id="img-perfil" src="" loading="lazy" alt="Foto de perfil">
+      </div>
 
-    <!-- BORRADORES -->
-    <section id="sec-drafts" class="section">
-      <h2>Borradores</h2>
-      <p class="subtle">Versos en espera</p>
-      <div id="lista-borradores" class="list"></div>
-    </section>
+      <div class="perfil-info-pro">
+        <h2 id="perf-nombre" class="times">Tu nombre</h2>
+        <p id="perf-usuario">@tuusuario</p>
+        <div class="bio-container">
+          <p id="perf-bio">Escribo para no olvidarme.</p>
+        </div>
+        <div id="badge-privado" class="badge-privado" style="display:none;">🔒 Perfil privado</div>
+        <button class="btn-perfil-edit" onclick="abrirModalPerfil()">Personalizar Perfil</button>
+      </div>
+    </div>
 
-    <!-- ARCHIVADOS -->
-    <section id="sec-archived" class="section">
-      <h2>Archivados</h2>
-      <p class="subtle">Versos en descanso</p>
-      <div id="lista-archivados" class="list"></div>
-    </section>
+    <!-- Poemas publicados por este perfil -->
+    <div id="perfil-poemas" class="perfil-poemas">
+      <h3 class="times perfil-poemas-titulo">Publicaciones</h3>
+      <div id="perfil-poemas-lista"></div>
+    </div>
+  </section>
 
-    <!-- NOTIFICACIONES -->
-    <section id="sec-notifs" class="section">
-      <h2>Notificaciones</h2>
-      <div id="notif-list" class="list"></div>
-    </section>
+  <!-- Configuración -->
+  <section id="seccion-config" class="contenedor-principal" style="display:none;">
+    <div class="config-wrap">
+      <h2 class="times">Configuración</h2>
+      <p class="config-sub">Ajusta tu espacio de escritura ✨</p>
 
-    <!-- CONFIGURACIÓN -->
-    <section id="sec-config" class="section">
-      <h2>Configuración</h2>
-      <div class="card elevation blossom-corners">
-        <label class="switch">
-          <input id="toggle-tecleo" type="checkbox"/>
-          <span>Sonido de tecleo (máquina de escribir)</span>
-        </label>
-        <label class="switch">
-          <input id="toggle-fresas" type="checkbox" checked/>
-          <span>Animación de fresas</span>
-        </label>
-        <label class="switch">
-          <input id="toggle-dark" type="checkbox"/>
-          <span>Modo oscuro</span>
-        </label>
-      </div>
-    </section>
-  </main>
+      <div class="config-row">
+        <label for="cfg-sonido"><strong>Sonido de tecleo</strong></label>
+        <input type="checkbox" id="cfg-sonido" />
+      </div>
 
-  <footer class="footer">Hecho con café y fresas por Emely ☕🍓</footer>
+      <div class="config-row">
+        <label for="cfg-lluvia"><strong>Animación de fresas</strong></label>
+        <input type="checkbox" id="cfg-lluvia" />
+      </div>
 
-  <!-- Modal “Editar identidad” -->
-  <div id="profile-modal-overlay" class="modal-overlay hidden">
-    <div id="profile-modal" class="modal blossom-corners elevation">
-      <div class="modal-header">
-        <h3>Editar Identidad</h3>
-        <button id="btn-close-profile-modal" class="modal-close">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="row"><label>Nombre completo</label><input id="m-name" type="text" placeholder="Emely Martínez"/></div>
-        <div class="row"><label>Usuario</label><input id="m-handle" type="text" placeholder="emely_m"/></div>
-        <div class="row"><label>Firma</label><input id="m-signature" type="text" placeholder="— Emely"/></div>
-        <div class="row"><label>Biografía</label><textarea id="m-bio" rows="3" placeholder="Algo breve sobre ti…"></textarea></div>
-        <div class="row row-opts">
-          <label class="chk"><input id="m-preview" type="checkbox" checked/> previsualizar</label>
-          <label class="chk"><input id="m-soft" type="checkbox" checked/> bordes suaves</label>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button id="m-save" class="btn primary">Guardar Cambios ✨</button>
-      </div>
-    </div>
-  </div>
+      <div class="config-row">
+        <label for="cfg-oscuro"><strong>Modo oscuro</strong></label>
+        <input type="checkbox" id="cfg-oscuro" />
+      </div>
 
-  <!-- Lluvia de fresas y toast -->
-  <div id="strawberry-rain"></div>
-  <div id="toast" class="toast hidden"></div>
+      <div class="config-actions">
+        <button class="btn-config" onclick="guardarAjustes()">Guardar ajustes</button>
+      </div>
 
-  <script type="module" src="script.js"></script>
+      <hr class="config-sep"/>
+
+      <div class="config-section">
+        <button class="config-link" onclick="togglePrivacidad()">
+          <span>Privacidad</span> <span id="arrow-priv">▸</span>
+        </button>
+        <div id="panel-priv" class="priv-panel" style="display:none;">
+          <div class="config-row">
+            <label for="cfg-perfil-privado"><strong>Perfil privado</strong></label>
+            <input type="checkbox" id="cfg-perfil-privado" />
+          </div>
+          <div class="config-row">
+            <span><strong>Cambiar contraseña</strong> <small style="opacity:.7">(próximamente)</small></span>
+            <button class="btn-config" onclick="cambiarContrasena()">Configurar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <div id="estado-sesion" class="config-row">
+          <span><strong>Sesión</strong></span>
+          <button id="btn-sesion" class="btn-config" onclick="accionSesion()">Cerrar sesión</button>
+        </div>
+      </div>
+
+      <p class="config-nota">Tus ajustes se guardan en este navegador.</p>
+    </div>
+  </section>
+
+  <!-- Modal Perfil -->
+  <div id="modalPerfil" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="titulo-modal">
+    <div class="modal-estetico-card">
+          
+      <div class="decoracion-esquina bottom-right">🌸</div>
+      <span class="btn-cerrar-x" onclick="cerrarModalPerfil()" aria-label="Cerrar">&times;</span>
+
+      <h2 id="titulo-modal" class="times titulo-modal">Editar Identidad</h2>
+
+      <div class="diseno-inputs-lindo">
+        <input type="text" id="edit-nombre" placeholder="Nombre completo">
+        <input type="text" id="edit-usuario" placeholder="Usuario">
+        <textarea id="edit-bio" placeholder="Biografía"></textarea>
+
+        <div class="seccion-fotos-edit">
+          <label class="label-estetico">
+             Portada
+            <input type="file" hidden accept="image/*" onchange="previsualizar(this, 'img-portada')">
+          </label>
+
+          <label class="label-estetico">
+             Perfil
+            <input type="file" hidden accept="image/*" onchange="previsualizar(this, 'img-perfil')">
+          </label>
+        </div>
+      </div>
+
+      <div class="opciones-modal">
+        <label><input class="input-check" type="checkbox" id="opt-prev" checked> previsualizar</label>
+        <label><input class="input-check" type="checkbox" id="opt-suave" checked> bordes suaves</label>
+      </div>
+
+      <button class="btn-guardar-magico" onclick="guardarPerfil()">Guardar Cambios ✨</button>
+    </div>
+  </div>
+
+  <!-- Modal Login -->
+  <div id="modalLogin" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="titulo-login">
+    <div class="modal-estetico-card">
+      <span class="btn-cerrar-x" onclick="cerrarModalLogin()" aria-label="Cerrar">&times;</span>
+      <h2 id="titulo-login" class="times titulo-modal">Iniciar sesión</h2>
+      <div class="diseno-inputs-lindo">
+        <input type="text" id="login-usuario" placeholder="Usuario (ej. @emely)" />
+        <input type="password" id="login-pass" placeholder="Contraseña" />
+      </div>
+      <button class="btn-guardar-magico" onclick="iniciarSesion()">Entrar</button>
+      <p class="config-nota" style="margin-top:8px;">(Temporal: local en este navegador. No hay servidor.)</p>
+    </div>
+  </div>
+
+  <!-- Editor de poemas -->
+  <div id="modalEditor" class="modal-full" style="display:none;">
+    <div class="editor-wrapper">
+
+      <div class="editor-header-superior">
+        <input type="text" id="tituloPoema" class="times input-titulo-editor" placeholder="Título del alma...">
+        <span class="cerrar-full" onclick="cerrarEditor()" aria-label="Cerrar">&times;</span>
+      </div>
+
+      <div class="barra-herramientas-pro" role="toolbar" aria-label="Herramientas de formato">
+        <button title="Negrita (Ctrl+B)" onclick="document.execCommand('bold')">B</button>
+        <button title="Cursiva (Ctrl+I)" onclick="document.execCommand('italic')">I</button>
+
+        <select aria-label="Fuente" onchange="document.execCommand('fontName', false, this.value)">
+          <option value="EB Garamond">Garamond</option>
+          <option value="Dancing Script">Manuscrita</option>
+          <option value="Playfair Display">Elegante</option>
+        </select>
+
+        <button title="Alinear izquierda" onclick="document.execCommand('justifyLeft')">⬅️</button>
+        <button title="Centrar" onclick="document.execCommand('justifyCenter')">⬆️</button>
+        <button title="Alinear derecha" onclick="document.execCommand('justifyRight')">➡️</button>
+
+        <label class="selector-color">
+          Sombra
+          <input type="color" id="colorSombraPoema" value="#ffc2d1" aria-label="Color de sombra">
+        </label>
+      </div>
+
+      <div class="papel-contenedor">
+        <div id="areaEscritura" contenteditable="true" class="papel-escritura" aria-label="Área de escritura"></div>
+      </div>
+
+      <div id="contador" class="contador">0 palabras</div>
+
+      <div class="editor-footer-lindo">
+        <button class="btn-save-draft" onclick="publicar('borradores')">Guardar Borrador</button>
+        <button class="btn-publish-main" onclick="publicar('feed')">Publicar Versos</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast">Guardado ✨</div>
+
+  <!-- Script principal -->
+  <script src="script.js"></script>
 </body>
 </html>

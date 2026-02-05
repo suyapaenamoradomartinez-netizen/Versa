@@ -1,602 +1,584 @@
-// Firebase SDKs desde CDN (modular)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider,
-  signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-  setPersistence, browserLocalPersistence, getAdditionalUserInfo
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getAnalytics, isSupported } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
-import {
-  getFirestore, collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot,
-  doc, updateDoc, deleteDoc, runTransaction, getDoc, setDoc, getDocs, limit
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+/* =========================
+   ESTADO
+========================= */
+let poemas = JSON.parse(localStorage.getItem('poemas')) || [];
+let editandoId = null; // si no es null, estamos editando un borrador
+let likesMios = JSON.parse(localStorage.getItem('likesMios')) || []; // ids de poemas a los que di fresa
+let ultimaSeccion = 'feed';
 
-// === Config Firebase (tu proyecto)
-const firebaseConfig = {
-  apiKey: "AIzaSyBsYiC08WUFzHjjKrlqbefRaBTmR_LUn4o",
-  authDomain: "versa-625d6.firebaseapp.com",
-  projectId: "versa-625d6",
-  storageBucket: "versa-625d6.firebasestorage.app",
-  messagingSenderId: "276866889012",
-  appId: "1:276866889012:web:b256bdfb5cc09e3433a161",
-  measurementId: "G-JM2CX4G493"
+let ajustes = {
+  sonido: true,
+  lluvia: true,
+  oscuro: false,
+  perfilPrivado: false
 };
 
-// Init Firebase
-const app = initializeApp(firebaseConfig);
-isSupported().then(ok => { if(ok){ try{ getAnalytics(app); }catch{} }});
-const auth = getAuth(app);
-const db = getFirestore(app);
-await setPersistence(auth, browserLocalPersistence);
-const googleProvider = new GoogleAuthProvider();
+let sesionActiva = JSON.parse(localStorage.getItem('sesionActiva') || 'true'); // por defecto, sesión abierta
 
-// ======= DOM =======
-const sidebarToggle = document.getElementById("sidebarToggle");
-const sidebar = document.getElementById("sidebar");
-const menuButtons = document.querySelectorAll(".menu .item");
-const sections = {
-  feed: document.getElementById("sec-feed"),
-  editor: document.getElementById("sec-editor"),
-  profile: document.getElementById("sec-profile"),
-  drafts: document.getElementById("sec-drafts"),
-  archived: document.getElementById("sec-archived"),
-  notifs: document.getElementById("sec-notifs"),
-  config: document.getElementById("sec-config"),
+const sonido = document.getElementById("sonidoTecla");
+const area = document.getElementById("areaEscritura");
+
+/* =========================
+   CARGA INICIAL
+========================= */
+window.onload = () => {
+  cargarAjustes();
+  if (sonido) { sonido.volume = 0.22; sonido.playbackRate = 0.92; }
+  cargarPerfil();
+  aplicarPrivacidadUI();
+  mostrarSeccion('feed');
 };
 
-const feedList = document.getElementById("feed-list");
-const listaBorradores = document.getElementById("lista-borradores");
-const listaArchivados = document.getElementById("lista-archivados");
-const notifList = document.getElementById("notif-list");
-const notifBadge = document.getElementById("notif-badge");
+/* =========================
+   SONIDO + CONTADOR + ATAJOS
+========================= */
+if (area) {
+  area.addEventListener("input", async () => {
+    try {
+      if (sonido && ajustes.sonido) {
+        sonido.currentTime = 0;
+        sonido.playbackRate = 0.9 + Math.random()*0.12;
+        await sonido.play();
+      }
+    } catch(e) {}
+    const c = document.getElementById('contador');
+    if (c) c.textContent = contarPalabras(area.innerHTML) + ' palabras';
+  });
 
-// Perfil + Auth en Perfil
-const authBox = document.getElementById("auth-box");
-const profileBox = document.getElementById("profile-box");
-const authStatus = document.getElementById("auth-status");
-const emailInput = document.getElementById("email");
-const passInput = document.getElementById("password");
-const btnLoginEmail = document.getElementById("btn-login-email");
-const btnSignupEmail = document.getElementById("btn-signup-email");
-const btnLoginGoogle = document.getElementById("btn-login-google");
-const btnLogout = document.getElementById("btn-logout");
-
-const profileName = document.getElementById("profile-name");
-const profileHandle = document.getElementById("profile-handle");
-const profileSignature = document.getElementById("profile-signature");
-const profileBio = document.getElementById("profile-bio");
-const btnOpenProfileModal = document.getElementById("btn-open-profile-modal");
-
-// Modal
-const modalOverlay = document.getElementById("profile-modal-overlay");
-const modal = document.getElementById("profile-modal");
-const btnCloseModal = document.getElementById("btn-close-profile-modal");
-const mName = document.getElementById("m-name");
-const mHandle = document.getElementById("m-handle");
-const mSignature = document.getElementById("m-signature");
-const mBio = document.getElementById("m-bio");
-const mPreview = document.getElementById("m-preview");
-const mSoft = document.getElementById("m-soft");
-const mSave = document.getElementById("m-save");
-
-// Editor
-const titleInput = document.getElementById("title-input");
-const editorText = document.getElementById("editor-text");
-const shadowColor = document.getElementById("shadow-color");
-const wordCountEl = document.getElementById("word-count");
-const tBold = document.getElementById("t-bold");
-const tFont = document.getElementById("t-font");
-const btnPublicar = document.getElementById("btn-publicar");
-const btnBorrador = document.getElementById("btn-borrador");
-const editorHint = document.getElementById("editor-hint");
-
-// Config
-const toggleTecleo = document.getElementById("toggle-tecleo");
-const toggleFresas = document.getElementById("toggle-fresas");
-const toggleDark = document.getElementById("toggle-dark");
-
-// Toast & Rain
-const toast = document.getElementById("toast");
-const rain = document.getElementById("strawberry-rain");
-
-// ======= Config local (persistente) =======
-const cfgKey = "versa_cfg_v3";
-function loadCfg(){
-  try{ return JSON.parse(localStorage.getItem(cfgKey)) ?? { tecleo:false, fresas:true, dark:false, shadow:"#f7c9d4" }; }
-  catch{ return { tecleo:false, fresas:true, dark:false, shadow:"#f7c9d4" }; }
+  area.addEventListener('keydown', e=>{
+    if (e.ctrlKey && e.key.toLowerCase()==='b') { document.execCommand('bold'); e.preventDefault(); }
+    if (e.ctrlKey && e.key.toLowerCase()==='i') { document.execCommand('italic'); e.preventDefault(); }
+  });
 }
-function saveCfg(c){ localStorage.setItem(cfgKey, JSON.stringify(c)); }
-let cfg = loadCfg();
-toggleTecleo.checked = cfg.tecleo;
-toggleFresas.checked = cfg.fresas;
-toggleDark.checked   = cfg.dark;
-shadowColor.value    = cfg.shadow;
-applyTheme(); setShadowColor(cfg.shadow);
 
-// ======= Helpers UI =======
-function showToast(msg, type="ok"){
-  toast.textContent = msg;
-  toast.style.background = type==="err" ? "rgba(224,86,86,.95)" : "rgba(176,110,122,.95)";
-  toast.classList.remove("hidden");
-  setTimeout(()=> toast.classList.add("hidden"), 2400);
+/* =========================
+   MENÚ LATERAL
+========================= */
+function toggleMenu() {
+  const nav = document.getElementById("miSidebar");
+  const btn = document.getElementById("boton-fresa-menu");
+  if (!nav || !btn) return;
+  const abierto = nav.style.width === "280px";
+  nav.style.width = abierto ? "0" : "280px";
+  btn.setAttribute('aria-expanded', String(!abierto));
 }
-function strawberryRain(){
-  if(!cfg.fresas) return;
-  const count = 40;
-  for(let i=0;i<count;i++){
-    const s = document.createElement("div");
-    s.className = "strawberry";
-    s.textContent = "🍓";
-    s.style.left = Math.random()*100 + "vw";
-    s.style.animationDelay = (Math.random()*0.8)+"s";
-    s.style.fontSize = (24 + Math.random()*10) + "px";
-    rain.appendChild(s);
-    setTimeout(()=> s.remove(), 3600);
-  }
-}
-function strawberryPop(x,y){
-  if(!cfg.fresas) return;
-  const el = document.createElement("div");
-  el.className = "pop";
-  el.style.left = x+"px"; el.style.top = y+"px";
-  el.textContent = "🍓";
-  document.body.appendChild(el);
-  setTimeout(()=> el.remove(), 650);
-}
-function escapeHtml(str){
-  return (str ?? "").replace(/[&<>"']/g, s => (
-    { "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[s]
-  ));
-}
-function applyTheme(){ document.body.classList.toggle("dark", cfg.dark); }
-function setShadowColor(hex){ document.documentElement.style.setProperty("--shadow-color", hex || "#f7c9d4"); }
-
-// ======= Sidebar (solo con la fresa) =======
-sidebarToggle.addEventListener("click", ()=>{
-  sidebar.classList.toggle("open");
-  const glow = sidebarToggle.querySelector(".glow-strawberry");
-  glow.style.filter = "drop-shadow(0 0 10px rgba(255,105,180,.9))";
-  setTimeout(()=> glow.style.filter = "drop-shadow(0 0 6px rgba(255,105,180,.6))", 450);
+document.getElementById('boton-fresa-menu')?.addEventListener('keydown', (e)=>{
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleMenu(); }
 });
 
-// Navegación entre secciones
-menuButtons.forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    menuButtons.forEach(b=> b.classList.remove("active"));
-    btn.classList.add("active");
-    const sec = btn.getAttribute("data-section");
-    Object.entries(sections).forEach(([k,el])=> el.classList.toggle("visible", k===sec));
-    sidebar.classList.remove("open");
-    if(sec==="notifs"){ markNotificationsRead(); }
-  });
-});
-
-// ======= Editor (sombra, fuente, alineación, contador y sonido) =======
-tFont.addEventListener("change", ()=>{ editorText.style.fontFamily = tFont.value + ", serif"; });
-document.querySelectorAll(".toolbar [data-align]").forEach(b=>{
-  b.addEventListener("click", ()=>{ editorText.style.textAlign = b.getAttribute("data-align"); });
-});
-shadowColor.addEventListener("input", ()=>{ cfg.shadow = shadowColor.value; saveCfg(cfg); setShadowColor(cfg.shadow); });
-editorText.addEventListener("input", ()=>{
-  const words = (editorText.value.trim().match(/\S+/g) || []).length;
-  wordCountEl.textContent = `${words} palabra${words===1?"":"s"}`;
-});
-
-// Máquina de escribir
-let audioCtx;
-function typewriterClick(){
-  if(!toggleTecleo.checked) return;
-  try{
-    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const o = audioCtx.createOscillator(), g = audioCtx.createGain(), n = audioCtx.createBufferSource();
-    const buf = audioCtx.createBuffer(1, audioCtx.sampleRate*0.03, audioCtx.sampleRate), d = buf.getChannelData(0);
-    for(let i=0;i<d.length;i++){ d[i] = (Math.random()*2-1)*Math.pow(1-i/d.length,3)*0.6; }
-    n.buffer = buf; n.connect(g);
-    o.type = "square"; o.frequency.value = 900 + Math.random()*120;
-    g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime + 0.005);
-    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.07);
-    o.connect(g); g.connect(audioCtx.destination);
-    o.start(); n.start(); o.stop(audioCtx.currentTime + 0.08); n.stop(audioCtx.currentTime + 0.08);
-  }catch{}
+/* =========================
+   EDITOR
+========================= */
+function abrirEditor() {
+  editandoId = null;
+  document.getElementById("tituloPoema").value = "";
+  document.getElementById("areaEscritura").innerHTML = "";
+  document.getElementById("colorSombraPoema").value = "#ffc2d1";
+  document.getElementById("modalEditor").style.display = "flex";
+  toggleMenu();
 }
-let keyThrottle=0;
-editorText.addEventListener("keydown", ()=>{
-  const now = Date.now(); if(now - keyThrottle > 40){ keyThrottle = now; typewriterClick(); }
-});
-tBold.addEventListener("click", ()=>{ /* si luego cambias a contenteditable, aquí aplicas document.execCommand('bold') */ });
+function cerrarEditor() { document.getElementById("modalEditor").style.display = "none"; }
 
-// ======= Config toggles =======
-toggleTecleo.addEventListener("change", ()=>{ cfg.tecleo = toggleTecleo.checked; saveCfg(cfg); });
-toggleFresas.addEventListener("change", ()=>{ cfg.fresas = toggleFresas.checked; saveCfg(cfg); });
-toggleDark.addEventListener("change", ()=>{ cfg.dark   = toggleDark.checked; saveCfg(cfg); applyTheme(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { cerrarModalPerfil(); cerrarEditor(); cerrarModalLogin(); }});
+document.getElementById('modalPerfil')?.addEventListener('click', (e)=>{ if (e.target.id === 'modalPerfil') cerrarModalPerfil(); });
+document.getElementById('modalEditor')?.addEventListener('click', (e)=>{ if (e.target.id === 'modalEditor') cerrarEditor(); });
 
-// ======= Estado global =======
-let currentUser=null;
-let unsubDrafts=null, unsubArchived=null, unsubFeed=null, unsubNotifCount=null, unsubNotifs=null;
-let followingSet = new Set();
+/* =========================
+   NAVEGACIÓN SECCIONES
+========================= */
+function mostrarSeccion(id) {
+  const secciones = ['feed', 'favoritos', 'seguidos', 'borradores', 'archivados', 'perfil', 'config'];
 
-onAuthStateChanged(auth, async (user)=>{
-  currentUser = user || null;
+  secciones.forEach(s => {
+    const el = document.getElementById('seccion-' + s);
+    if (el) el.style.display = (s === id) ? 'block' : 'none';
+  });
 
-  authStatus.textContent = user ? `Conectada como ${user.displayName || user.email}` : "Desconectada";
-  authBox.classList.toggle("hidden", !!user);
-  profileBox.classList.toggle("hidden", !user);
+  const header = document.querySelector('.header-principal');
+  if (header) header.style.display = (id === 'borradores' || id === 'archivados') ? 'none' : '';
 
-  await loadProfile();
-  await loadFollowing();
+  const tabs = document.getElementById('navegacion-tabs');
+  if (tabs) {
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.remove('active'); b.setAttribute('aria-selected','false');
+    });
+    if (['feed', 'favoritos', 'seguidos'].includes(id)) {
+      tabs.style.display = 'flex';
+      const btn = document.getElementById('btn-' + id);
+      if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected','true'); }
+    } else {
+      tabs.style.display = 'none';
+    }
+  }
 
-  subscribeDrafts();
-  subscribeArchived();
-  subscribeFeed(false); // feed hero limpio (lista oculta)
-  subscribeNotifBadge();
-});
+  marcarItemActivo(id);
 
-// ======= Auth dentro de Perfil =======
-btnLoginEmail.addEventListener("click", async ()=>{
-  const email = (emailInput.value||"").trim(), pass = passInput.value||"";
-  if(!email || !pass) return showToast("Completa email y contraseña", "err");
-  try{ await signInWithEmailAndPassword(auth,email,pass); strawberryRain(); }
-  catch(e){ showToast(e?.message || "Error al iniciar sesión", "err"); }
-});
-btnSignupEmail.addEventListener("click", async ()=>{
-  const email = (emailInput.value||"").trim(), pass = passInput.value||"";
-  if(!email || !pass) return showToast("Completa email y contraseña", "err");
-  try{
-    const res = await createUserWithEmailAndPassword(auth,email,pass);
-    await setDoc(doc(db,"users", res.user.uid), {
-      name:"", handle: email.split("@")[0], signature:"— "+email.split("@")[0], createdAt: serverTimestamp()
-    }, {merge:true});
-    strawberryRain(); showToast("Cuenta creada 🍓");
-  }catch(e){ showToast(e?.message || "No se pudo crear", "err"); }
-});
-btnLoginGoogle.addEventListener("click", async ()=>{
-  try{
-    const res = await signInWithPopup(auth, new GoogleAuthProvider());
-    const info = getAdditionalUserInfo(res);
-    if(info?.isNewUser){
-      await setDoc(doc(db,"users", res.user.uid), {
-        name: res.user.displayName || "", handle: (res.user.email||"").split("@")[0],
-        signature:"— "+((res.user.displayName||"") || (res.user.email||"").split("@")[0])
-      }, {merge:true});
-    }
-    strawberryRain(); showToast("¡Bienvenida! 🍓");
-  }catch(e){ showToast("No se pudo iniciar con Google", "err"); }
-});
-btnLogout.addEventListener("click", async ()=>{ try{ await signOut(auth); }catch(e){ showToast("Error al salir", "err"); } });
+  ultimaSeccion = id;
+  if (id === 'perfil') renderPerfilPoemas();
+  else if (id === 'config') precargarAjustesEnUI();
+  else renderizarPoemas(id);
 
-// ======= Perfil (tarjeta + modal) =======
-async function loadProfile(){
-  if(!currentUser){
-    profileName.textContent="—"; profileHandle.textContent="@—"; profileSignature.textContent="—"; profileBio.textContent="";
-    return;
-  }
-  const snap = await getDoc(doc(db,"users", currentUser.uid));
-  const data = snap.exists()? snap.data() : {};
-  const name = data.name || currentUser.displayName || "";
-  const handle = data.handle || (currentUser.email?.split("@")[0] || "");
-  const signature = data.signature || "— " + (name || "Anónimo");
-  const bio = data.bio || "";
-
-  profileName.textContent = name || "Sin nombre";
-  profileHandle.textContent = handle ? ("@"+handle) : "@sin_usuario";
-  profileSignature.textContent = signature;
-  profileBio.textContent = bio;
-
-  // Prellenar modal
-  mName.value = name; mHandle.value = handle; mSignature.value = signature; mBio.value = bio;
+  const nav = document.getElementById("miSidebar");
+  if (nav) nav.style.width = "0";
+  document.getElementById("boton-fresa-menu")?.setAttribute('aria-expanded', 'false');
 }
-btnOpenProfileModal.addEventListener("click", ()=>{ modalOverlay.classList.remove("hidden"); });
-btnCloseModal.addEventListener("click", ()=>{ modalOverlay.classList.add("hidden"); });
-modalOverlay.addEventListener("click", (e)=>{ if(e.target===modalOverlay) modalOverlay.classList.add("hidden"); });
-mSave.addEventListener("click", async ()=>{
-  if(!currentUser) return;
-  await setDoc(doc(db,"users", currentUser.uid), {
-    name: (mName.value||"").trim(),
-    handle: (mHandle.value||"").trim(),
-    signature: (mSignature.value||"").trim(),
-    bio: (mBio.value||"").trim(),
-    updatedAt: serverTimestamp()
-  }, {merge:true});
-  showToast("Identidad actualizada ✨");
-  modalOverlay.classList.add("hidden");
-  loadProfile();
-});
-
-// ======= Following (seguir) =======
-async function loadFollowing(){
-  followingSet.clear();
-  if(!currentUser) return;
-  const q = await getDocs(collection(db,"users", currentUser.uid, "following"));
-  q.forEach(d=> followingSet.add(d.id));
-}
-async function toggleFollow(authorId){
-  if(!currentUser) return showToast("Inicia sesión para seguir", "err");
-  if(authorId===currentUser.uid) return;
-  const ref = doc(db,"users", currentUser.uid, "following", authorId);
-  const snap = await getDoc(ref);
-  if(snap.exists()){
-    await deleteDoc(ref); followingSet.delete(authorId); showToast("Dejaste de seguir");
-  }else{
-    await setDoc(ref, { createdAt: serverTimestamp() });
-    followingSet.add(authorId);
-    strawberryRain();
-    await pushNotification(authorId, { type:"follow", fromUid: currentUser.uid, fromName: await myDisplayName(), createdAt: serverTimestamp(), read:false });
-    showToast("Ahora sigues a esta persona 🍓");
-  }
+function marcarItemActivo(id) {
+  document.querySelectorAll('.barra-lateral a').forEach(a=>a.classList.remove('activo'));
+  const mapa = {
+    feed:'Explorar Feed',
+    favoritos:'Favoritos',
+    seguidos:'Seguidos',
+    borradores:'Borradores',
+    archivados:'Archivados',
+    perfil:'Mi Perfil',
+    config:'Configuración'
+  };
+  const link = [...document.querySelectorAll('.barra-lateral a')].find(a=> a.textContent.includes(mapa[id]));
+  link?.classList.add('activo');
 }
 
-// ======= Borradores / Archivados / Feed =======
-function subscribeDrafts(){
-  if(unsubDrafts){ unsubDrafts(); unsubDrafts=null; }
-  if(!currentUser){
-    listaBorradores.innerHTML = `<div class="card">Inicia sesión para ver borradores</div>`; return;
-  }
-  unsubDrafts = onSnapshot(
-    query(collection(db,"posts"), where("authorId","==", currentUser.uid), where("status","==","borrador"), orderBy("createdAt","desc")),
-    (snap)=> renderPostList(listaBorradores, snap.docs, "borradores")
-  );
+/* =========================
+   PERFIL (LOCALSTORAGE)
+========================= */
+function guardarPerfil() {
+  const perfil = {
+    nombre: document.getElementById("edit-nombre").value,
+    usuario: document.getElementById("edit-usuario").value,
+    bio: document.getElementById("edit-bio").value,
+    fotoPerfil: document.getElementById("img-perfil").src,
+    fotoPortada: document.getElementById("img-portada").src
+  };
+  localStorage.setItem('perfilEmely', JSON.stringify(perfil));
+  aplicarCambiosPerfil(perfil);
+  cerrarModalPerfil();
+  toast('Perfil guardado ✨');
 }
-function subscribeArchived(){
-  if(unsubArchived){ unsubArchived(); unsubArchived=null; }
-  if(!currentUser){
-    listaArchivados.innerHTML = `<div class="card">Inicia sesión para ver archivados</div>`; return;
-  }
-  unsubArchived = onSnapshot(
-    query(collection(db,"posts"), where("authorId","==", currentUser.uid), where("status","==","archivado"), orderBy("createdAt","desc")),
-    (snap)=> renderPostList(listaArchivados, snap.docs, "archivados")
-  );
+function cargarPerfil() {
+  const p = JSON.parse(localStorage.getItem('perfilEmely'));
+  if (p) { aplicarCambiosPerfil(p); }
+  else {
+    document.getElementById("img-perfil").src = "https://www.w3schools.com/howto/img_avatar2.png";
+    document.getElementById("img-portada").src = "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=1000";
+    document.getElementById("perf-nombre").innerText = "Tu Nombre";
+  }
 }
-function subscribeFeed(show=false){
-  if(unsubFeed){ unsubFeed(); unsubFeed=null; }
-  const list = document.getElementById("feed-list");
-  list.classList.toggle("hidden", !show); // por pedido, oculto
-  unsubFeed = onSnapshot(
-    query(collection(db,"posts"), where("status","==","publicado"), orderBy("publishedAt","desc"), limit(50)),
-    (snap)=> { if(show) renderPostList(list, snap.docs, "feed"); }
-  );
+function aplicarCambiosPerfil(p) {
+  document.getElementById("perf-nombre").innerText = p.nombre || "Sin Nombre";
+  document.getElementById("perf-usuario").innerText = "@" + (p.usuario || "usuario");
+  document.getElementById("perf-bio").innerText = p.bio || "...";
+  if (p.fotoPerfil) document.getElementById("img-perfil").src = p.fotoPerfil;
+  if (p.fotoPortada) document.getElementById("img-portada").src = p.fotoPortada;
+
+  document.getElementById("edit-nombre").value = p.nombre || "";
+  document.getElementById("edit-usuario").value = p.usuario || "";
+  document.getElementById("edit-bio").value = p.bio || "";
 }
-
-// ======= Render posts =======
-function truncateText(text, maxChars=520){
-  if(text.length<=maxChars) return { short:text, truncated:false };
-  const cut = text.slice(0, maxChars);
-  const last = Math.max(cut.lastIndexOf(" "), cut.lastIndexOf("\n"));
-  const short = (last>320? cut.slice(0,last) : cut) + "…";
-  return { short, truncated:true };
+function previsualizar(input, idDestino) {
+  if (input.files && input.files[0]) {
+    const lector = new FileReader();
+    lector.onload = e => document.getElementById(idDestino).src = e.target.result;
+    lector.readAsDataURL(input.files[0]);
+  }
 }
-function actionButtons(ctx, id){
-  if(ctx==="feed") return `<button class="btn" data-act="archivar" data-id="${id}">Archivar</button><button class="btn danger" data-act="borrar" data-id="${id}">Borrar</button>`;
-  if(ctx==="borradores") return `<button class="btn" data-act="editar" data-id="${id}">Editar</button><button class="btn primary" data-act="publicar" data-id="${id}">Publicar</button><button class="btn danger" data-act="borrar" data-id="${id}">Borrar</button>`;
-  if(ctx==="archivados") return `<button class="btn" data-act="restaurar" data-id="${id}">Restaurar</button><button class="btn danger" data-act="borrar" data-id="${id}">Borrar</button>`;
-  return "";
+function abrirModalPerfil() { document.getElementById("modalPerfil").style.display = "flex"; }
+function cerrarModalPerfil() { document.getElementById("modalPerfil").style.display = "none"; }
+
+/* =========================
+   AJUSTES (CONFIGURACIÓN)
+========================= */
+function cargarAjustes(){
+  try {
+    const guard = JSON.parse(localStorage.getItem('ajustesEmely'));
+    if (guard) ajustes = { ...ajustes, ...guard };
+  } catch {}
+  aplicarTemaOscuro(ajustes.oscuro);
+  aplicarPrivacidadUI();
 }
-function renderPostList(container, docs, contexto){
-  container.innerHTML = "";
-  if(!docs.length){
-    container.innerHTML = `<div class="card blossom-corners"><div class="meta">No hay elementos aún.</div></div>`;
-    return;
-  }
-  docs.forEach(d=>{
-    const data = d.data();
-    const id = d.id;
-    const title = data.title || "Verso sin título";
-    const body = data.texto || "";
-    const author = data.authorName || "anónimo";
-    const authorId = data.authorId;
-    const signature = data.signature || ("— " + author);
-    const date = (data.publishedAt || data.createdAt)?.toDate?.() || new Date();
-    const likesCount = data.likesCount || 0;
-    const likedBy = data.likedBy || [];
-    const iLike = currentUser ? likedBy.includes(currentUser.uid) : false;
+function guardarAjustes(){
+  const chkSonido = document.getElementById('cfg-sonido');
+  const chkLluvia = document.getElementById('cfg-lluvia');
+  const chkOscuro = document.getElementById('cfg-oscuro');
+  const chkPriv = document.getElementById('cfg-perfil-privado');
 
-    const { short, truncated } = truncateText(body, 520);
+  ajustes.sonido = !!chkSonido?.checked;
+  ajustes.lluvia = !!chkLluvia?.checked;
+  ajustes.oscuro = !!chkOscuro?.checked;
+  ajustes.perfilPrivado = !!chkPriv?.checked;
 
-    const card = document.createElement("div");
-    card.className = "card blossom-corners elevation";
-    card.innerHTML = `
-      <div class="meta"><span>${date.toLocaleDateString("es-ES",{ day:"2-digit", month:"long" })}</span> • <span>@${author}</span></div>
-      <div class="title">${escapeHtml(title)}</div>
-      <div class="content">${escapeHtml(truncated? short : body)}</div>
-      <div class="signature">${escapeHtml(signature)}</div>
-      <div class="actions">
-        ${ contexto!=="borradores" ? `
-          <button class="pill-btn btn-like" data-id="${id}">🍓 <span class="count">${likesCount}</span></button>
-          ${ currentUser && currentUser.uid!==authorId ? `<button class="pill-btn btn-follow" data-aid="${authorId}">Seguir</button>` : ``}
-          <button class="pill-btn btn-fav" data-id="${id}">☆ Guardar</button>
-        ` : ``}
-        ${ currentUser && currentUser.uid===authorId ? actionButtons(contexto, id) : ``}
-        ${ truncated ? `<button class="btn outline btn-more">Leer más…</button>` : ``}
-      </div>
-    `;
-
-    // Leer más
-    const btnMore = card.querySelector(".btn-more");
-    if(btnMore){ btnMore.addEventListener("click", ()=>{ card.querySelector(".content").textContent = body; btnMore.remove(); }); }
-
-    // Like
-    const likeBtn = card.querySelector(".btn-like");
-    if(likeBtn){
-      likeBtn.addEventListener("click", async (ev)=>{
-        if(!currentUser) return showToast("Inicia sesión para dar me gusta", "err");
-        const added = await toggleLike(id);
-        if(added && authorId!==currentUser.uid){
-          await pushNotification(authorId, { type:"like", postId:id, fromUid: currentUser.uid, fromName: await myDisplayName(), createdAt: serverTimestamp(), read:false });
-        }
-        const r = ev.currentTarget.getBoundingClientRect();
-        strawberryPop(r.left + r.width/2, r.top);
-      });
-    }
-
-    // Follow
-    const followBtn = card.querySelector(".btn-follow");
-    if(followBtn){ followBtn.addEventListener("click", async ()=>{ await toggleFollow(authorId); }); }
-
-    // Fav
-    const favBtn = card.querySelector(".btn-fav");
-    if(favBtn){
-      favBtn.addEventListener("click", async ()=>{
-        if(!currentUser) return showToast("Inicia sesión para guardar", "err");
-        const favRef = doc(db,"users", currentUser.uid, "favorites", id);
-        const snap = await getDoc(favRef);
-        if(snap.exists()){
-          await deleteDoc(favRef); favBtn.textContent="☆ Guardar";
-        }else{
-          await setDoc(favRef, { createdAt: serverTimestamp() }); favBtn.textContent="⭐ Guardado";
-          if(authorId!==currentUser.uid){
-            await pushNotification(authorId, { type:"favorite", postId:id, fromUid: currentUser.uid, fromName: await myDisplayName(), createdAt: serverTimestamp(), read:false });
-          }
-        }
-      });
-    }
-
-    // Acciones autor
-    card.querySelectorAll("[data-act]").forEach(btn=>{
-      btn.addEventListener("click", async ()=>{
-        if(!currentUser) return showToast("Inicia sesión", "err");
-        const act = btn.getAttribute("data-act");
-        const pid = btn.getAttribute("data-id");
-        if(act==="borrar"){
-          if(!confirm("¿Eliminar definitivamente?")) return;
-          await deleteDoc(doc(db,"posts",pid)); showToast("Eliminado");
-        }else if(act==="archivar"){
-          await updateDoc(doc(db,"posts",pid), { status:"archivado" }); showToast("Archivado");
-        }else if(act==="restaurar"){
-          await updateDoc(doc(db,"posts",pid), { status:"publicado", publishedAt: serverTimestamp() }); showToast("Restaurado");
-        }else if(act==="publicar"){
-          await updateDoc(doc(db,"posts",pid), { status:"publicado", publishedAt: serverTimestamp() }); showToast("Publicado");
-        }else if(act==="editar"){
-          const snap = await getDoc(doc(db,"posts",pid)); const dt = snap.data();
-          currentEditingId = pid;
-          titleInput.value = dt.title || "";
-          editorText.value = dt.texto || "";
-          menuOpen("editor");
-          showToast("Editando borrador…");
-        }
-      });
-    });
-
-    container.appendChild(card);
-  });
+  localStorage.setItem('ajustesEmely', JSON.stringify(ajustes));
+  aplicarTemaOscuro(ajustes.oscuro);
+  aplicarPrivacidadUI();
+  toast('Ajustes guardados ✨');
+}
+function precargarAjustesEnUI(){
+  const elSon = document.getElementById('cfg-sonido');
+  const elLluv = document.getElementById('cfg-lluvia');
+  const elOsc = document.getElementById('cfg-oscuro');
+  const elPriv = document.getElementById('cfg-perfil-privado');
+  if (elSon) elSon.checked = !!ajustes.sonido;
+  if (elLluv) elLluv.checked = !!ajustes.lluvia;
+  if (elOsc) elOsc.checked = !!ajustes.oscuro;
+  if (elPriv) elPriv.checked = !!ajustes.perfilPrivado;
+  const btn = document.getElementById('btn-sesion');
+  if (btn) btn.textContent = sesionActiva ? 'Cerrar sesión' : 'Iniciar sesión';
+}
+function aplicarTemaOscuro(activar){
+  if (activar) document.body.setAttribute('data-theme', 'dark');
+  else document.body.removeAttribute('data-theme');
+}
+function aplicarPrivacidadUI(){
+  const badge = document.getElementById('badge-privado');
+  if (badge) badge.style.display = ajustes.perfilPrivado ? 'inline-block' : 'none';
+}
+function togglePrivacidad(){
+  const panel = document.getElementById('panel-priv');
+  const arrow = document.getElementById('arrow-priv');
+  const visible = panel.style.display !== 'none';
+  panel.style.display = visible ? 'none' : 'block';
+  arrow.textContent = visible ? '▸' : '▾';
+}
+function cambiarContrasena(){
+  toast('La opción de cambiar contraseña estará disponible cuando publiques la web 🔒');
 }
 
-// ======= Crear/Guardar =======
-let currentEditingId=null;
-btnPublicar.addEventListener("click", async ()=>{
-  if(!currentUser) return showToast("Inicia sesión para publicar", "err");
-  const title = (titleInput.value||"").trim() || "Verso sin título";
-  const texto = (editorText.value||"").trim();
-  if(!texto) return showToast("Escribe algo", "err");
-
-  const prof = await getDoc(doc(db,"users", currentUser.uid)); const pd = prof.exists()? prof.data():{};
-  const authorName = pd.handle || currentUser.displayName || (currentUser.email?.split("@")[0]) || "anónimo";
-  const signature = pd.signature || ("— " + authorName);
-
-  if(currentEditingId){
-    await updateDoc(doc(db,"posts",currentEditingId), { title, texto, signature, status:"publicado", publishedAt: serverTimestamp() });
-    currentEditingId=null;
-  }else{
-    await addDoc(collection(db,"posts"), {
-      title, texto, signature, authorId: currentUser.uid, authorName,
-      status:"publicado", createdAt: serverTimestamp(), publishedAt: serverTimestamp(),
-      likesCount:0, likedBy:[]
-    });
-  }
-  titleInput.value=""; editorText.value="";
-  showToast("Publicado ✨");
-  menuOpen("feed");
-});
-btnBorrador.addEventListener("click", async ()=>{
-  if(!currentUser) return showToast("Inicia sesión para guardar", "err");
-  const title = (titleInput.value||"").trim() || "Verso sin título";
-  const texto = (editorText.value||"").trim();
-  if(!texto) return showToast("Escribe algo", "err");
-
-  const prof = await getDoc(doc(db,"users", currentUser.uid)); const pd = prof.exists()? prof.data():{};
-  const authorName = pd.handle || currentUser.displayName || (currentUser.email?.split("@")[0]) || "anónimo";
-  const signature = pd.signature || ("— " + authorName);
-
-  if(currentEditingId){
-    await updateDoc(doc(db,"posts",currentEditingId), { title, texto, signature });
-    currentEditingId=null; showToast("Borrador actualizado");
-  }else{
-    await addDoc(collection(db,"posts"), {
-      title, texto, signature, authorId: currentUser.uid, authorName,
-      status:"borrador", createdAt: serverTimestamp(), likesCount:0, likedBy:[]
-    });
-    showToast("Guardado en borradores");
-  }
-  titleInput.value=""; editorText.value="";
-});
-
-// ======= Likes (1 por persona) =======
-async function toggleLike(postId){
-  if(!currentUser) return false;
-  const ref = doc(db,"posts",postId);
-  let added=false;
-  await runTransaction(db, async (tx)=>{
-    const snap = await tx.get(ref); if(!snap.exists()) return;
-    const d = snap.data(); const likedBy = d.likedBy || []; const lc = d.likesCount || 0;
-    const has = likedBy.includes(currentUser.uid);
-    if(has){
-      tx.update(ref, { likedBy: likedBy.filter(x=>x!==currentUser.uid), likesCount: Math.max(0, lc-1) });
-      added=false;
-    }else{
-      tx.update(ref, { likedBy: [...likedBy, currentUser.uid], likesCount: lc+1 });
-      added=true;
-    }
-  });
-  return added;
+/* Sesión */
+function accionSesion(){
+  if (sesionActiva) cerrarSesion();
+  else abrirModalLogin();
+}
+function cerrarSesion(){
+  sesionActiva = false;
+  localStorage.setItem('sesionActiva', 'false');
+  const btn = document.getElementById('btn-sesion');
+  if (btn) btn.textContent = 'Iniciar sesión';
+  toast('Cerraste sesión 🌙');
+}
+function abrirModalLogin(){
+  document.getElementById('modalLogin').style.display = 'flex';
+}
+function cerrarModalLogin(){
+  document.getElementById('modalLogin').style.display = 'none';
+}
+function iniciarSesion(){
+  const u = (document.getElementById('login-usuario').value || '').trim();
+  const p = (document.getElementById('login-pass').value || '').trim();
+  if (!u || !p){ toast('Completa usuario y contraseña'); return; }
+  sesionActiva = true;
+  localStorage.setItem('sesionActiva', 'true');
+  localStorage.setItem('usuarioSesion', u);
+  const btn = document.getElementById('btn-sesion');
+  if (btn) btn.textContent = 'Cerrar sesión';
+  cerrarModalLogin();
+  toast('Sesión iniciada ✨');
 }
 
-// ======= Notificaciones =======
-function subscribeNotifBadge(){
-  if(unsubNotifCount){ unsubNotifCount(); unsubNotifCount=null; }
-  if(!currentUser){ notifBadge.classList.add("hidden"); notifList.innerHTML = `<div class="card">Inicia sesión para ver notificaciones</div>`; return; }
-  unsubNotifCount = onSnapshot(
-    query(collection(db,"users", currentUser.uid, "notifications"), where("read","==", false)),
-    (snap)=> { notifBadge.classList.toggle("hidden", snap.empty); }
-  );
-  if(unsubNotifs){ unsubNotifs(); unsubNotifs=null; }
-  unsubNotifs = onSnapshot(
-    query(collection(db,"users", currentUser.uid, "notifications"), orderBy("createdAt","desc"), limit(50)),
-    (snap)=>{
-      notifList.innerHTML = "";
-      if(snap.empty){ notifList.innerHTML = `<div class="card">Sin notificaciones</div>`; return; }
-      snap.forEach(d=>{
-        const n = d.data();
-        const when = n.createdAt?.toDate?.() || new Date();
-        const txt = n.type==="like" ? `A alguien le gustó tu poema`
-                  : n.type==="favorite" ? `Guardaron tu poema en favoritos`
-                  : n.type==="follow" ? `${n.fromName || "Alguien"} empezó a seguirte`
-                  : `Notificación`;
-        const card = document.createElement("div");
-        card.className="card blossom-corners elevation";
-        card.innerHTML = `<div class="meta">${when.toLocaleString()}</div><div>${txt}</div>`;
-        notifList.appendChild(card);
-      });
-    }
-  );
-}
-async function markNotificationsRead(){
-  if(!currentUser) return;
-  const q = await getDocs(query(collection(db,"users", currentUser.uid, "notifications"), where("read","==", false), limit(30)));
-  const ops = q.docs.map(d=> updateDoc(doc(db,"users", currentUser.uid, "notifications", d.id), { read:true }));
-  await Promise.allSettled(ops);
-}
-async function pushNotification(userId, payload){
-  try{ await addDoc(collection(db,"users", userId, "notifications"), payload); }catch{}
-}
-async function myDisplayName(){
-  if(!currentUser) return "Alguien";
-  const s = await getDoc(doc(db,"users", currentUser.uid));
-  if(s.exists() && s.data().handle) return s.data().handle;
-  return currentUser.displayName || (currentUser.email?.split("@")[0]) || "Alguien";
+/* =========================
+   SANITIZAR CONTENIDO
+========================= */
+function sanitize(html) {
+  const temp = document.createElement('div');
+  temp.innerHTML = html;
+  temp.querySelectorAll('script, style, iframe, object, embed, link').forEach(n=>n.remove());
+  temp.querySelectorAll('*').forEach(el => {
+    [...el.attributes].forEach(attr => {
+      if (/^on/i.test(attr.name)) el.removeAttribute(attr.name);
+      if (attr.name === 'style' && /expression|url\(/i.test(attr.value)) el.removeAttribute('style');
+    });
+  });
+  return temp.innerHTML;
 }
 
-// ======= Helper navegación directa =======
-function menuOpen(sec){
-  menuButtons.forEach(b=> b.classList.toggle("active", b.getAttribute("data-section")===sec));
-  Object.entries(sections).forEach(([k,el])=> el.classList.toggle("visible", k===sec));
-  sidebar.classList.remove("open");
+/* =========================
+   PUBLICAR / GUARDAR
+========================= */
+function publicar(estado) {
+  const titulo = document.getElementById("tituloPoema").value.trim();
+  const contenido = sanitize(document.getElementById("areaEscritura").innerHTML);
+
+  if (!titulo || !contenido.replace(/<[^>]*>/g,'').trim()) {
+    alert("Escribe algo...");
+    return;
+  }
+
+  if (editandoId) {
+    const p = poemas.find(x => x.id === editandoId);
+    if (p) {
+      p.titulo = titulo;
+      p.contenido = contenido;
+      p.autor = document.getElementById("perf-nombre").innerText;
+      p.usuario = document.getElementById("perf-usuario").innerText;
+      p.estado = estado;
+    }
+  } else {
+    poemas.push({
+      id: Date.now(),
+      titulo,
+      contenido,
+      autor: document.getElementById("perf-nombre").innerText,
+      usuario: document.getElementById("perf-usuario").innerText,
+      estado,
+      favorito: false,
+      fresas: 0,
+      siguiendo: false
+    });
+  }
+
+  guardarTodo();
+  document.getElementById("tituloPoema").value = "";
+  document.getElementById("areaEscritura").innerHTML = "";
+  editandoId = null;
+
+  cerrarEditor();
+  mostrarSeccion(estado);
+  toast(estado === 'feed' ? 'Publicado ✨' : 'Borrador guardado ✨');
 }
+
+/* =========================
+   RENDERIZAR POEMAS
+========================= */
+function renderizarPoemas(filtro) {
+  const cont = document.getElementById('seccion-' + filtro);
+  if (!cont) return;
+  cont.innerHTML = "";
+
+  let target = cont;
+  if (filtro === 'borradores' || filtro === 'archivados') {
+    const titulo = filtro === 'borradores' ? 'Borradores' : 'Archivados';
+    const subtitulo = filtro === 'borradores' ? 'Versos en espera' : 'Textos en descanso';
+    cont.innerHTML = `
+      <div class="titulo-seccion">
+        <h2 class="times">${titulo}</h2>
+        <p class="sub">${subtitulo}</p>
+      </div>
+      <div class="grid-poemas" id="grid-${filtro}"></div>
+    `;
+    target = cont.querySelector(`#grid-${filtro}`);
+  }
+
+  const lista = poemas.filter(p => {
+    if (filtro === 'favoritos') return p.favorito;
+    if (filtro === 'seguidos') return p.siguiendo;
+    return p.estado === filtro;
+  });
+
+  if (lista.length === 0) {
+    if (filtro === 'borradores' || filtro === 'archivados') {
+      target.innerHTML = `<p style="text-align:center;opacity:.8;">No hay ${filtro} aún.</p>`;
+    } else {
+      cont.innerHTML = `<p style="text-align:center;opacity:.8;">Aún no hay poemas aquí.</p>`;
+    }
+    return;
+  }
+
+  lista.forEach(p => {
+    if (filtro === 'borradores' || filtro === 'archivados') {
+      const div = document.createElement('div');
+      div.className = "tarjeta-nota";
+      div.setAttribute('data-estado', filtro === 'borradores' ? 'Borrador' : 'Archivado');
+      div.setAttribute('role','group');
+      div.innerHTML = `
+        <h3>${p.titulo}</h3>
+        <div>${p.contenido.replace(/<[^>]*>?/gm, '').slice(0, 120)}...</div>
+        <div class="nota-actions">
+          ${
+            filtro === 'borradores'
+              ? `<button class="nota-btn" onclick="editarBorrador(${p.id})">✍️ Editar</button>
+                 <button class="nota-btn" onclick="eliminarPoema(${p.id})">🗑️ Eliminar</button>`
+              : `<button class="nota-btn" onclick="restaurarPoema(${p.id})">📤 Publicar de nuevo</button>
+                 <button class="nota-btn" onclick="eliminarPoema(${p.id})">🗑️ Eliminar</button>`
+          }
+        </div>
+      `;
+      target.appendChild(div);
+    } else {
+      const liked = likesMios.includes(p.id);
+      const div = document.createElement('div');
+      div.className = "poema-card";
+      const sombra = p.sombra || '#ffc2d1';
+      div.style.boxShadow = `12px 12px 0px ${sombra}, 0 14px 40px rgba(90,69,61,.12)`;
+      div.innerHTML = `
+        <h3 class="titulo">${p.titulo}</h3>
+        <div style="margin:16px 0;line-height:1.75;">${p.contenido}</div>
+        <p class="cita">— ${p.autor}</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn-poema ${liked ? 'liked' : ''}" onclick="votar(${p.id})" title="${liked ? 'Quitar fresa' : 'Dar fresa'}">
+            🍓 ${p.fresas}
+          </button>
+          <button class="btn-poema" onclick="fav(${p.id})">${p.favorito ? '⭐' : '☆'}</button>
+          <button class="btn-poema" onclick="seguir(${p.id})">${p.siguiendo ? 'Siguiendo' : 'Seguir'}</button>
+        </div>
+        <div class="poema-actions">
+          <button class="action-btn" onclick="archivarPoema(${p.id})">📦 Archivar</button>
+          <button class="action-btn" onclick="eliminarPoema(${p.id})">🗑️ Eliminar</button>
+        </div>
+      `;
+      target.appendChild(div);
+    }
+  });
+}
+
+/* RENDER EN PERFIL */
+function renderPerfilPoemas(){
+  const lista = poemas.filter(p => p.estado === 'feed' && p.autor === document.getElementById("perf-nombre").innerText);
+  const cont = document.getElementById('perfil-poemas-lista');
+  if (!cont) return;
+
+  cont.innerHTML = "";
+  if (ajustes.perfilPrivado){
+    cont.innerHTML = `<p style="opacity:.85;">🔒 Tu perfil es privado. Solo tú lo ves aquí.</p>`;
+    return;
+  }
+
+  if (lista.length === 0) {
+    cont.innerHTML = `<p style="opacity:.8;">Aún no hay publicaciones.</p>`;
+    return;
+  }
+  lista.forEach(p=>{
+    const row = document.createElement('div');
+    row.className = 'perfil-entry';
+    row.innerHTML = `
+      <span class="titulo">${p.titulo}</span>
+      <div class="acciones">
+        <button class="nota-btn" onclick="archivarPoema(${p.id})">📦 Archivar</button>
+        <button class="nota-btn" onclick="eliminarPoema(${p.id})">🗑️ Eliminar</button>
+      </div>
+    `;
+    cont.appendChild(row);
+  });
+}
+
+/* Abrir editor precargado para un borrador */
+function editarBorrador(id){
+  const p = poemas.find(x => x.id === id);
+  if (!p) return;
+
+  editandoId = p.id;
+  document.getElementById("tituloPoema").value = p.titulo;
+  document.getElementById("areaEscritura").innerHTML = p.contenido;
+  document.getElementById("modalEditor").style.display = "flex";
+}
+
+/* =========================
+   INTERACCIONES
+========================= */
+// Toggle de fresa: siempre 🍓, permite quitar mi fresa y nunca duplica
+function votar(id) {
+  const yaLikee = likesMios.includes(id);
+  const p = poemas.find(x => x.id === id);
+  if (!p) return;
+
+  if (yaLikee) {
+    p.fresas = Math.max(0, (p.fresas || 0) - 1);
+    likesMios = likesMios.filter(x => x !== id);
+    localStorage.setItem('likesMios', JSON.stringify(likesMios));
+    guardarTodo();
+    toast('Quitaste tu fresa 🍓');
+  } else {
+    p.fresas = (p.fresas || 0) + 1;
+    likesMios.push(id);
+    localStorage.setItem('likesMios', JSON.stringify(likesMios));
+    guardarTodo();
+    toast('Gracias por la fresa 🍓');
+  }
+}
+function fav(id) {
+  const p = poemas.find(x => x.id === id);
+  if (!p) return;
+  p.favorito = !p.favorito;
+  guardarTodo();
+}
+function seguir(id) {
+  const p = poemas.find(x => x.id === id);
+  if (!p) return;
+  const antes = p.siguiendo;
+  p.siguiendo = !p.siguiendo;
+  if (!antes && p.siguiendo && ajustes.lluvia) lluviaDeFresas();
+  guardarTodo();
+}
+
+/* Archivar / Restaurar / Eliminar */
+function archivarPoema(id){
+  const p = poemas.find(x => x.id === id);
+  if (!p) return;
+  p.estado = 'archivados';
+  guardarTodo();
+  toast('Archivado 📦');
+}
+function restaurarPoema(id){
+  const p = poemas.find(x => x.id === id);
+  if (!p) return;
+  p.estado = 'feed';
+  guardarTodo();
+  toast('Publicado de nuevo 📤');
+}
+function eliminarPoema(id){
+  if (!confirm('¿Eliminar este poema? Esta acción no se puede deshacer.')) return;
+  poemas = poemas.filter(x => x.id !== id);
+  likesMios = likesMios.filter(x => x !== id); // limpiar mi fresa si la tenía
+  localStorage.setItem('likesMios', JSON.stringify(likesMios));
+  guardarTodo();
+  toast('Eliminado 🗑️');
+}
+
+function guardarTodo() {
+  localStorage.setItem('poemas', JSON.stringify(poemas));
+  if (ultimaSeccion === 'perfil') renderPerfilPoemas();
+  else if (ultimaSeccion === 'config') precargarAjustesEnUI();
+  else renderizarPoemas(ultimaSeccion);
+}
+
+/* =========================
+   EFECTO FRESAS 🍓
+========================= */
+function lluviaDeFresas() {
+  if (!ajustes.lluvia) return;
+  for (let i = 0; i < 15; i++) {
+    const f = document.createElement("div");
+    f.className = "fresa-caida";
+    f.innerText = "🍓";
+    f.style.left = Math.random() * 100 + "vw";
+    f.style.animationDuration = (Math.random() * 2 + 1) + "s";
+    document.getElementById("contenedor-lluvia").appendChild(f);
+    setTimeout(() => f.remove(), 3000);
+  }
+}
+
+/* =========================
+   CONTADOR DE PALABRAS
+========================= */
+function contarPalabras(html){
+  const text = html.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
+  return text ? text.split(' ').length : 0;
+}
+
+/* =========================
+   TOAST
+========================= */
+function toast(msg='Guardado ✨'){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=> t.classList.remove('show'), 1600);
+}
+
+/* Exponer funciones al global para los onclick del HTML */
+window.abrirEditor = abrirEditor;
+window.cerrarEditor = cerrarEditor;
+window.mostrarSeccion = mostrarSeccion;
+window.toggleMenu = toggleMenu;
+window.guardarPerfil = guardarPerfil;
+window.previsualizar = previsualizar;
+window.togglePrivacidad = togglePrivacidad;
+window.cambiarContrasena = cambiarContrasena;
+window.accionSesion = accionSesion;
+window.iniciarSesion = iniciarSesion;
+window.cerrarModalLogin = cerrarModalLogin;
+window.publicar = publicar;
+window.votar = votar;
+window.fav = fav;
+window.seguir = seguir;
+window.archivarPoema = archivarPoema;
+window.restaurarPoema = restaurarPoema;
+window.eliminarPoema = eliminarPoema;
+window.editarBorrador = editarBorrador;
+window.guardarAjustes = guardarAjustes;
