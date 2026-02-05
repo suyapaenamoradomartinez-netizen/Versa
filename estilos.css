@@ -11,10 +11,10 @@
   --borde: #eaded7;
   --card: #ffffff;
   --text: #5d4037;
-  --shadow: 0 10px 30px rgba(90, 69, 61, 0.1);
+  --shadow: 0 15px 45px rgba(90, 69, 61, 0.08);
 }
 
-/* ======== ESTRUCTURA FULL SCREEN ======== */
+/* ======== RESET & BASE ======== */
 * { box-sizing: border-box; }
 body {
   background: var(--crema);
@@ -22,123 +22,122 @@ body {
   color: var(--text);
   margin: 0;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  transition: background 0.3s;
 }
 
-/* Contenedor que empuja el contenido cuando la barra lateral está abierta */
-.contenedor-principal {
-  flex: 1;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 40px 20px;
-  transition: margin-left 0.4s;
+body[data-theme="dark"] {
+  --crema: #261e20; --card: #33282b; --text: #f7e9ee; --borde: #4a3c40;
+  --rosa-claro: #3b2b30; --sidebar-bg: #1a1516;
 }
 
-/* ======== BARRA LATERAL ESTILIZADA ======== */
+.times { font-family: "Times New Roman", serif !important; }
+
+/* ======== BARRA LATERAL (PULIDA) ======== */
 .barra-lateral {
-  height: 100%;
-  width: 0;
-  position: fixed;
-  top: 0; left: 0;
-  background: var(--sidebar-bg);
-  z-index: 2000;
-  overflow: hidden;
-  transition: 0.4s;
-  display: flex;
-  flex-direction: column;
-  padding-top: 80px;
-  border-radius: 0 30px 30px 0;
+  height: 100%; width: 0; position: fixed;
+  top: 0; left: 0; background: var(--sidebar-bg);
+  z-index: 2000; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden; border-radius: 0 40px 40px 0;
+  box-shadow: 20px 0 60px rgba(0,0,0,0.1);
+  display: flex; flex-direction: column; padding-top: 80px;
 }
 
 .barra-lateral a {
-  padding: 15px 30px;
-  text-decoration: none;
-  font-size: 1.1rem;
-  color: var(--sidebar-text);
-  display: block;
-  transition: 0.3s;
-  font-weight: 500;
-  border-radius: 0 50px 50px 0;
-  margin-bottom: 5px;
+  padding: 18px 40px; text-decoration: none; font-size: 1.2rem;
+  color: var(--sidebar-text); display: block; white-space: nowrap;
+  transition: 0.3s; font-weight: 500;
 }
 
-.barra-lateral a:hover {
-  background: rgba(255, 255, 255, 0.1);
-  padding-left: 40px;
+.barra-lateral a:hover, .barra-lateral a.activo {
+  background: rgba(255,255,255,0.08); padding-left: 50px; color: #fff;
 }
 
-/* ======== SECCIONES TIPO CARD (Limpias) ======== */
-section {
-  background: var(--card);
-  border-radius: 24px;
-  padding: 40px;
-  margin-bottom: 40px;
-  border: 1px solid var(--borde);
+/* ======== BOTÓN FRESA PRINCIPAL ======== */
+#boton-fresa-menu {
+  position: fixed; top: 25px; left: 25px;
+  font-size: 40px; cursor: pointer; z-index: 3000;
+  background: var(--card); width: 65px; height: 65px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 20px; box-shadow: var(--shadow); transition: 0.3s;
+}
+#boton-fresa-menu:hover { transform: scale(1.1) rotate(10deg); }
+
+/* ======== CONTENEDORES FULL SCREEN ======== */
+.header-principal { text-align: center; padding: 100px 20px 30px; }
+
+.contenedor-principal {
+  max-width: 1000px; margin: 0 auto 60px;
+  background: var(--card); border-radius: 35px;
+  padding: 60px; border: 1px solid var(--borde);
   box-shadow: var(--shadow);
-  animation: fadeIn 0.6s ease;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+/* ======== TABS & BOTONES ======== */
+.tabs-poesia { display: flex; justify-content: center; gap: 15px; margin: 20px 0; }
+.tab-btn {
+  background: var(--pill-bg); border: 1px solid var(--borde);
+  padding: 12px 28px; border-radius: 50px; cursor: pointer;
+  font-weight: 600; transition: 0.3s; color: var(--text);
 }
+.tab-btn.active { background: var(--rosa); box-shadow: 0 4px 15px rgba(255,194,209,0.4); }
 
-/* ======== BOTONES Y TABS (Inspirado en tu foto) ======== */
-.tab-btn, .btn-save-draft, .btn-publish-main {
-  background: var(--pill-bg);
-  border: 1px solid var(--borde);
-  padding: 12px 24px;
-  border-radius: 50px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: 0.3s;
-  color: var(--text);
+/* ======== PERFIL ======== */
+.perfil-card-pro { text-align: center; }
+.portada-pro { height: 220px; background: #eee; border-radius: 25px; overflow: hidden; margin-bottom: -60px; }
+.portada-pro img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-pro {
+  width: 130px; height: 130px; border-radius: 50%; border: 6px solid var(--card);
+  margin: 0 auto; overflow: hidden; position: relative; z-index: 5; background: var(--card);
 }
+.avatar-pro img { width: 100%; height: 100%; object-fit: cover; }
+.bio-container { background: var(--rosa-claro); padding: 20px; border-radius: 20px; margin: 20px 0; }
 
-.tab-btn.active, .btn-publish-main {
-  background: var(--rosa);
-  border-color: var(--rosa-fuerte);
-  box-shadow: 0 4px 15px rgba(255, 194, 209, 0.4);
-}
-
-/* ======== EDITOR PROFESIONAL (Full Screen Feel) ======== */
+/* ======== EDITOR (MÁQUINA DE ESCRIBIR) ======== */
 .modal-full {
-  position: fixed;
-  inset: 0;
-  background: var(--rosa-claro);
-  z-index: 5000;
-  padding: 20px;
-  display: none; /* Se activa con JS */
+  position: fixed; inset: 0; background: var(--rosa-claro);
+  z-index: 5000; display: flex; flex-direction: column; padding: 30px;
 }
-
 .papel-contenedor {
-  background: #fff;
-  height: 85vh;
-  margin: 0 auto;
-  max-width: 900px;
-  border-radius: 30px;
-  padding: 50px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--borde);
-  background-image: linear-gradient(var(--borde) 1px, transparent 1px);
-  background-size: 100% 32px; /* Renglones */
+  background: #fff; flex: 1; border-radius: 30px; padding: 60px;
+  box-shadow: var(--shadow); border: 1px solid var(--borde);
+  background-image: repeating-linear-gradient(transparent, transparent 31px, #fdf0f3 32px);
+  overflow-y: auto;
+}
+.papel-escritura { outline: none; line-height: 32px; font-size: 1.3rem; min-height: 100%; }
+
+/* ======== MODALES DE EDICIÓN ======== */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(93, 64, 55, 0.5);
+  backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 4000;
+}
+.modal-estetico-card {
+  background: var(--card); padding: 40px; border-radius: 30px;
+  width: 90%; max-width: 500px; position: relative; box-shadow: var(--shadow);
+}
+.diseno-inputs-lindo input, .diseno-inputs-lindo textarea {
+  width: 100%; padding: 15px; border-radius: 15px; border: 1px solid var(--borde);
+  margin-bottom: 15px; background: var(--crema); font-family: inherit;
 }
 
-.papel-escritura {
-  outline: none;
-  line-height: 32px;
-  font-size: 1.2rem;
+/* ======== POEMA CARD ======== */
+.poema-card {
+  background: var(--card); padding: 40px; border-radius: 25px;
+  border: 1px solid var(--borde); margin-bottom: 30px;
 }
+.btn-poema {
+  background: var(--rosa-claro); border: none; padding: 10px 20px;
+  border-radius: 50px; cursor: pointer; transition: 0.2s;
+}
+.btn-poema.liked { background: var(--rosa); }
 
-/* ======== INPUTS LINDOS ======== */
-input, textarea {
-  width: 100%;
-  padding: 14px;
-  border: 1px solid var(--borde);
-  border-radius: 16px;
-  background: var(--rosa-claro);
-  margin-bottom: 15px;
-  font-family: inherit;
+/* ======== ANIMACIÓN FRESAS ======== */
+.fresa-caida { position: fixed; top: -50px; z-index: 9999; animation: caer linear forwards; }
+@keyframes caer { to { transform: translateY(110vh) rotate(360deg); } }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+  background: var(--cafe); color: #fff; padding: 12px 25px;
+  border-radius: 50px; opacity: 0; transition: 0.3s; z-index: 6000;
 }
+.toast.show { opacity: 1; bottom: 40px; }

@@ -1,245 +1,93 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Versa</title>
-
-  <!-- CSS del proyecto -->
-  <link rel="stylesheet" href="estilos.css" />
-
-  <!-- Fuentes de Google -->
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=EB+Garamond:ital,wght@0,400;1,400&family=Playfair+Display:ital,wght@0,500;0,700;1,600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Versa</title>
+  <link rel="stylesheet" href="estilos.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=EB+Garamond:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 </head>
-
 <body>
-  <!-- Sonido máquina de escribir (suavizado por JS) -->
-  <audio id="sonidoTecla" src="https://www.soundjay.com/communication/typewriter-key-1.mp3" preload="auto"></audio>
 
-  <!-- Contenedor de lluvia de fresas -->
-  <div id="contenedor-lluvia"></div>
+  <audio id="sonidoTecla" src="https://www.soundjay.com/communication/typewriter-key-1.mp3" preload="auto"></audio>
+  <div id="contenedor-lluvia"></div>
 
-  <!-- Botón menú -->
-  <div
-    id="boton-fresa-menu"
-    role="button"
-    aria-controls="miSidebar"
-    aria-expanded="false"
-    tabindex="0"
-    onclick="toggleMenu()">🍓</div>
+  <div id="boton-fresa-menu" onclick="toggleMenu()">🍓</div>
 
-  <!-- Sidebar -->
-  <nav id="miSidebar" class="barra-lateral" role="navigation" aria-label="Secciones">
-    <div style="height: 80px;"></div>
-    <a href="javascript:void(0)" onclick="abrirEditor()">Escribir Poema</a>
-    <a href="javascript:void(0)" onclick="mostrarSeccion('feed')">Explorar Feed</a>
-    <a href="javascript:void(0)" onclick="mostrarSeccion('perfil')">Mi Perfil</a>
-    <a href="javascript:void(0)" onclick="mostrarSeccion('borradores')">Borradores</a>
-    <a href="javascript:void(0)" onclick="mostrarSeccion('archivados')">Archivados</a>
-    <a href="javascript:void(0)" onclick="mostrarSeccion('config')">Configuración</a>
-  </nav>
+  <nav id="miSidebar" class="barra-lateral">
+    <a href="javascript:void(0)" onclick="abrirEditor()">Escribir Poema</a>
+    <a href="javascript:void(0)" onclick="mostrarSeccion('feed')">Explorar Feed</a>
+    <a href="javascript:void(0)" onclick="mostrarSeccion('perfil')">Mi Perfil</a>
+    <a href="javascript:void(0)" onclick="mostrarSeccion('borradores')">Borradores</a>
+    <a href="javascript:void(0)" onclick="mostrarSeccion('archivados')">Archivados</a>
+    <a href="javascript:void(0)" onclick="mostrarSeccion('config')">Configuración</a>
+  </nav>
 
-  <!-- Header (se oculta en Borradores/Archivados vía JS) -->
-  <header class="header-principal">
-    <h1 id="titulo-pagina" class="times">Versa</h1>
-    <p id="subtitulo-pagina">nada aquí concluye</p>
+  <header class="header-principal">
+    <h1 class="times" style="font-size: 3rem; margin:0;">Versa</h1>
+    <p>nada aquí concluye</p>
+    <div id="navegacion-tabs" class="tabs-poesia">
+      <button id="btn-feed" class="tab-btn active" onclick="mostrarSeccion('feed')">Tu Feed</button>
+      <button id="btn-favoritos" class="tab-btn" onclick="mostrarSeccion('favoritos')">Favoritos</button>
+    </div>
+  </header>
 
-    <div id="navegacion-tabs" class="tabs-poesia" role="tablist" aria-label="Navegación de feed">
-      <button id="btn-feed" class="tab-btn active" onclick="mostrarSeccion('feed')" role="tab" aria-selected="true">Tu Feed</button>
-      <button id="btn-favoritos" class="tab-btn" onclick="mostrarSeccion('favoritos')" role="tab" aria-selected="false">Favoritos</button>
-      <button id="btn-seguidos" class="tab-btn" onclick="mostrarSeccion('seguidos')" role="tab" aria-selected="false">Seguidos</button>
-    </div>
-  </header>
+  <main id="seccion-feed" class="contenedor-principal"></main>
+  <main id="seccion-favoritos" class="contenedor-principal" style="display:none;"></main>
+  <main id="seccion-borradores" class="contenedor-principal" style="display:none;"></main>
+  <main id="seccion-archivados" class="contenedor-principal" style="display:none;"></main>
 
-  <!-- Secciones principales -->
-  <main id="seccion-feed" class="contenedor-principal"></main>
-  <main id="seccion-favoritos" class="contenedor-principal" style="display:none;"></main>
-  <main id="seccion-seguidos" class="contenedor-principal" style="display:none;"></main>
+  <section id="seccion-perfil" class="contenedor-principal" style="display:none;">
+    <div class="perfil-card-pro">
+      <div class="portada-pro"><img id="img-portada" src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=1000"></div>
+      <div class="avatar-pro"><img id="img-perfil" src="https://www.w3schools.com/howto/img_avatar2.png"></div>
+      <h2 id="perf-nombre" class="times">Tu nombre</h2>
+      <p id="perf-usuario">@usuario</p>
+      <div class="bio-container"><p id="perf-bio">Escribo para no olvidarme.</p></div>
+      <button class="tab-btn active" onclick="abrirModalPerfil()">Personalizar Perfil</button>
+    </div>
+    <div id="perfil-poemas-lista" style="margin-top:30px;"></div>
+  </section>
 
-  <!-- Borradores y archivados con encabezado + grid interno -->
-  <main id="seccion-borradores" class="contenedor-principal" style="display:none;"></main>
-  <main id="seccion-archivados" class="contenedor-principal" style="display:none;"></main>
+  <section id="seccion-config" class="contenedor-principal" style="display:none;">
+    <h2 class="times">Configuración</h2>
+    <div class="bio-container">
+      <label><input type="checkbox" id="cfg-sonido" checked> Sonido de máquina</label><br><br>
+      <label><input type="checkbox" id="cfg-lluvia" checked> Lluvia de fresas</label><br><br>
+      <label><input type="checkbox" id="cfg-oscuro"> Modo Oscuro</label><br><br>
+      <button class="tab-btn active" onclick="guardarAjustes()">Guardar Ajustes</button>
+    </div>
+  </section>
 
-  <!-- Perfil -->
-  <section id="seccion-perfil" class="contenedor-principal" style="display:none;">
-    <div class="perfil-card-pro">
-      <div class="portada-pro">
-        <img id="img-portada" src="" loading="lazy" alt="Portada del perfil">
-      </div>
+  <div id="modalPerfil" class="modal-overlay" style="display:none;">
+    <div class="modal-estetico-card">
+      <h2 class="times">Editar Perfil</h2>
+      <div class="diseno-inputs-lindo">
+        <input type="text" id="edit-nombre" placeholder="Nombre">
+        <input type="text" id="edit-usuario" placeholder="Usuario">
+        <textarea id="edit-bio" placeholder="Bio"></textarea>
+      </div>
+      <button class="tab-btn active" style="width:100%" onclick="guardarPerfil()">Guardar ✨</button>
+      <p onclick="cerrarModalPerfil()" style="cursor:pointer; margin-top:15px; opacity:0.5">Cerrar</p>
+    </div>
+  </div>
 
-      <div class="avatar-pro">
-        <img id="img-perfil" src="" loading="lazy" alt="Foto de perfil">
-      </div>
+  <div id="modalEditor" class="modal-full" style="display:none;">
+    <div class="editor-header-superior">
+      <input type="text" id="tituloPoema" class="times" style="border:none; background:transparent; font-size:2rem; text-align:center; width:100%" placeholder="Título del alma...">
+    </div>
+    <div class="papel-contenedor">
+      <div id="areaEscritura" contenteditable="true" class="papel-escritura"></div>
+    </div>
+    <div style="display:flex; justify-content:center; gap:20px; padding:20px;">
+      <button class="tab-btn" onclick="publicar('borradores')">Borrador</button>
+      <button class="tab-btn active" onclick="publicar('feed')">Publicar</button>
+      <button class="tab-btn" onclick="cerrarEditor()">Cancelar</button>
+    </div>
+  </div>
 
-      <div class="perfil-info-pro">
-        <h2 id="perf-nombre" class="times">Tu nombre</h2>
-        <p id="perf-usuario">@tuusuario</p>
-        <div class="bio-container">
-          <p id="perf-bio">Escribo para no olvidarme.</p>
-        </div>
-        <div id="badge-privado" class="badge-privado" style="display:none;">🔒 Perfil privado</div>
-        <button class="btn-perfil-edit" onclick="abrirModalPerfil()">Personalizar Perfil</button>
-      </div>
-    </div>
+  <div id="toast" class="toast">Guardado ✨</div>
 
-    <!-- Poemas publicados por este perfil -->
-    <div id="perfil-poemas" class="perfil-poemas">
-      <h3 class="times perfil-poemas-titulo">Publicaciones</h3>
-      <div id="perfil-poemas-lista"></div>
-    </div>
-  </section>
-
-  <!-- Configuración -->
-  <section id="seccion-config" class="contenedor-principal" style="display:none;">
-    <div class="config-wrap">
-      <h2 class="times">Configuración</h2>
-      <p class="config-sub">Ajusta tu espacio de escritura ✨</p>
-
-      <div class="config-row">
-        <label for="cfg-sonido"><strong>Sonido de tecleo</strong></label>
-        <input type="checkbox" id="cfg-sonido" />
-      </div>
-
-      <div class="config-row">
-        <label for="cfg-lluvia"><strong>Animación de fresas</strong></label>
-        <input type="checkbox" id="cfg-lluvia" />
-      </div>
-
-      <div class="config-row">
-        <label for="cfg-oscuro"><strong>Modo oscuro</strong></label>
-        <input type="checkbox" id="cfg-oscuro" />
-      </div>
-
-      <div class="config-actions">
-        <button class="btn-config" onclick="guardarAjustes()">Guardar ajustes</button>
-      </div>
-
-      <hr class="config-sep"/>
-
-      <div class="config-section">
-        <button class="config-link" onclick="togglePrivacidad()">
-          <span>Privacidad</span> <span id="arrow-priv">▸</span>
-        </button>
-        <div id="panel-priv" class="priv-panel" style="display:none;">
-          <div class="config-row">
-            <label for="cfg-perfil-privado"><strong>Perfil privado</strong></label>
-            <input type="checkbox" id="cfg-perfil-privado" />
-          </div>
-          <div class="config-row">
-            <span><strong>Cambiar contraseña</strong> <small style="opacity:.7">(próximamente)</small></span>
-            <button class="btn-config" onclick="cambiarContrasena()">Configurar</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="config-section">
-        <div id="estado-sesion" class="config-row">
-          <span><strong>Sesión</strong></span>
-          <button id="btn-sesion" class="btn-config" onclick="accionSesion()">Cerrar sesión</button>
-        </div>
-      </div>
-
-      <p class="config-nota">Tus ajustes se guardan en este navegador.</p>
-    </div>
-  </section>
-
-  <!-- Modal Perfil -->
-  <div id="modalPerfil" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="titulo-modal">
-    <div class="modal-estetico-card">
-          
-      <div class="decoracion-esquina bottom-right">🌸</div>
-      <span class="btn-cerrar-x" onclick="cerrarModalPerfil()" aria-label="Cerrar">&times;</span>
-
-      <h2 id="titulo-modal" class="times titulo-modal">Editar Identidad</h2>
-
-      <div class="diseno-inputs-lindo">
-        <input type="text" id="edit-nombre" placeholder="Nombre completo">
-        <input type="text" id="edit-usuario" placeholder="Usuario">
-        <textarea id="edit-bio" placeholder="Biografía"></textarea>
-
-        <div class="seccion-fotos-edit">
-          <label class="label-estetico">
-             Portada
-            <input type="file" hidden accept="image/*" onchange="previsualizar(this, 'img-portada')">
-          </label>
-
-          <label class="label-estetico">
-             Perfil
-            <input type="file" hidden accept="image/*" onchange="previsualizar(this, 'img-perfil')">
-          </label>
-        </div>
-      </div>
-
-      <div class="opciones-modal">
-        <label><input class="input-check" type="checkbox" id="opt-prev" checked> previsualizar</label>
-        <label><input class="input-check" type="checkbox" id="opt-suave" checked> bordes suaves</label>
-      </div>
-
-      <button class="btn-guardar-magico" onclick="guardarPerfil()">Guardar Cambios ✨</button>
-    </div>
-  </div>
-
-  <!-- Modal Login -->
-  <div id="modalLogin" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="titulo-login">
-    <div class="modal-estetico-card">
-      <span class="btn-cerrar-x" onclick="cerrarModalLogin()" aria-label="Cerrar">&times;</span>
-      <h2 id="titulo-login" class="times titulo-modal">Iniciar sesión</h2>
-      <div class="diseno-inputs-lindo">
-        <input type="text" id="login-usuario" placeholder="Usuario (ej. @emely)" />
-        <input type="password" id="login-pass" placeholder="Contraseña" />
-      </div>
-      <button class="btn-guardar-magico" onclick="iniciarSesion()">Entrar</button>
-      <p class="config-nota" style="margin-top:8px;">(Temporal: local en este navegador. No hay servidor.)</p>
-    </div>
-  </div>
-
-  <!-- Editor de poemas -->
-  <div id="modalEditor" class="modal-full" style="display:none;">
-    <div class="editor-wrapper">
-
-      <div class="editor-header-superior">
-        <input type="text" id="tituloPoema" class="times input-titulo-editor" placeholder="Título del alma...">
-        <span class="cerrar-full" onclick="cerrarEditor()" aria-label="Cerrar">&times;</span>
-      </div>
-
-      <div class="barra-herramientas-pro" role="toolbar" aria-label="Herramientas de formato">
-        <button title="Negrita (Ctrl+B)" onclick="document.execCommand('bold')">B</button>
-        <button title="Cursiva (Ctrl+I)" onclick="document.execCommand('italic')">I</button>
-
-        <select aria-label="Fuente" onchange="document.execCommand('fontName', false, this.value)">
-          <option value="EB Garamond">Garamond</option>
-          <option value="Dancing Script">Manuscrita</option>
-          <option value="Playfair Display">Elegante</option>
-        </select>
-
-        <button title="Alinear izquierda" onclick="document.execCommand('justifyLeft')">⬅️</button>
-        <button title="Centrar" onclick="document.execCommand('justifyCenter')">⬆️</button>
-        <button title="Alinear derecha" onclick="document.execCommand('justifyRight')">➡️</button>
-
-        <label class="selector-color">
-          Sombra
-          <input type="color" id="colorSombraPoema" value="#ffc2d1" aria-label="Color de sombra">
-        </label>
-      </div>
-
-      <div class="papel-contenedor">
-        <div id="areaEscritura" contenteditable="true" class="papel-escritura" aria-label="Área de escritura"></div>
-      </div>
-
-      <div id="contador" class="contador">0 palabras</div>
-
-      <div class="editor-footer-lindo">
-        <button class="btn-save-draft" onclick="publicar('borradores')">Guardar Borrador</button>
-        <button class="btn-publish-main" onclick="publicar('feed')">Publicar Versos</button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Toast -->
-  <div id="toast" class="toast">Guardado ✨</div>
-
-  <!-- Script principal -->
-  <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
