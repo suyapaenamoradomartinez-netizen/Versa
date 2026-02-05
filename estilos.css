@@ -4,172 +4,141 @@
   --rosa-claro: #fff5f7;
   --cafe: #5d4037;
   --crema: #fdf6f0;
-  --sidebar-bg:#5a453d;
-  --sidebar-text:#ffe5ec;
-  --pill-bg:#f5ebe6;
-  --accent:#ffc2d1;
-  --borde:#eaded7;
-  --shadow-dark: rgba(0,0,0,0.25);
-  --shadow-light: rgba(255,255,255,0.15);
-  --card:#ffffff;
-  --card-soft:#fff8fb;
-  --text:#5d4037;
+  --sidebar-bg: #5a453d;
+  --sidebar-text: #ffe5ec;
+  --pill-bg: #f5ebe6;
+  --accent: #ffc2d1;
+  --borde: #eaded7;
+  --card: #ffffff;
+  --text: #5d4037;
+  --shadow: 0 10px 30px rgba(90, 69, 61, 0.1);
 }
 
-/* ======== MODO OSCURO ======== */
-body[data-theme="dark"] {
-  --crema:#20191a;
-  --text:#f7e9ee;
-  --card:#2a2123;
-  --card-soft:#33282b;
-  --borde:#3b2f32;
-  --sidebar-bg:#2d2326;
-  --sidebar-text:#ffd9e4;
-  --pill-bg:#3a2e31;
-  --rosa-claro:#3b2b30;
-  --shadow-dark: rgba(0,0,0,0.45);
-  --shadow-light: rgba(255,255,255,0.06);
-}
-
+/* ======== ESTRUCTURA FULL SCREEN ======== */
 * { box-sizing: border-box; }
-
 body {
   background: var(--crema);
   font-family: 'EB Garamond', serif;
   color: var(--text);
   margin: 0;
-  overflow-x: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.times { font-family: "Times New Roman", serif !important; }
-
-/* BOTÓN FRESA */
-#boton-fresa-menu {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  font-size: 38px;
-  cursor: pointer;
-  z-index: 3000;
-  transition: .25s;
-  background: var(--pill-bg);
-  border-radius: 16px;
-  padding: 6px 10px;
-  filter: drop-shadow(0 4px 14px rgba(0,0,0,.2));
+/* Contenedor que empuja el contenido cuando la barra lateral está abierta */
+.contenedor-principal {
+  flex: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  transition: margin-left 0.4s;
 }
 
-#boton-fresa-menu:hover {
-  filter: drop-shadow(0 0 15px var(--rosa-fuerte));
-  transform: translateY(-2px);
-}
-
-/* BARRA LATERAL */
+/* ======== BARRA LATERAL ESTILIZADA ======== */
 .barra-lateral {
   height: 100%;
   width: 0;
   position: fixed;
-  top: 0;
-  left: 0;
+  top: 0; left: 0;
   background: var(--sidebar-bg);
-  transition: 0.4s;
   z-index: 2000;
+  overflow: hidden;
+  transition: 0.4s;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  overflow: hidden;
-  border-top-right-radius: 28px;
-  border-bottom-right-radius: 28px;
-  padding: 12px 0;
-  box-shadow: 12px 0 30px rgba(0,0,0,0.2);
+  padding-top: 80px;
+  border-radius: 0 30px 30px 0;
 }
 
 .barra-lateral a {
-  color: var(--sidebar-text);
-  padding: 12px 16px;
+  padding: 15px 30px;
   text-decoration: none;
-  width: 80%;
-  text-align: left;
-  margin: 6px 0;
-  border-radius: 50px;
-  white-space: nowrap;
-  transition: 0.25s;
-  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--sidebar-text);
+  display: block;
+  transition: 0.3s;
+  font-weight: 500;
+  border-radius: 0 50px 50px 0;
+  margin-bottom: 5px;
 }
 
 .barra-lateral a:hover {
+  background: rgba(255, 255, 255, 0.1);
+  padding-left: 40px;
+}
+
+/* ======== SECCIONES TIPO CARD (Limpias) ======== */
+section {
+  background: var(--card);
+  border-radius: 24px;
+  padding: 40px;
+  margin-bottom: 40px;
+  border: 1px solid var(--borde);
+  box-shadow: var(--shadow);
+  animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ======== BOTONES Y TABS (Inspirado en tu foto) ======== */
+.tab-btn, .btn-save-draft, .btn-publish-main {
   background: var(--pill-bg);
-  color: var(--sidebar-text);
-}
-
-/* HEADER Y TABS */
-.header-principal { text-align: center; padding: 72px 20px 10px; }
-
-/* GRID DE POEMAS */
-.grid-poemas {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-  padding: 20px;
-}
-
-.tarjeta-nota {
-  background: var(--card);
-  padding: 20px;
-  aspect-ratio: 1 / 1;
   border: 1px solid var(--borde);
-  box-shadow: 5px 5px 15px rgba(0,0,0,0.05);
-  border-radius: 16px;
-  transition: 0.25s;
+  padding: 12px 24px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+  color: var(--text);
 }
 
-/* PERFIL CARD */
-.perfil-card-pro {
-  background: var(--card);
-  border-radius: 26px;
-  overflow: hidden;
-  max-width: 640px;
-  margin: 20px auto;
-  border: 1px solid var(--borde);
+.tab-btn.active, .btn-publish-main {
+  background: var(--rosa);
+  border-color: var(--rosa-fuerte);
+  box-shadow: 0 4px 15px rgba(255, 194, 209, 0.4);
 }
 
-.portada-pro { height: 180px; background: #eee; }
-.avatar-pro {
-  width: 120px; height: 120px; border-radius: 50%; border: 6px solid var(--card);
-  margin: -60px auto 0; overflow: hidden; background: var(--card);
-}
-.portada-pro img, .avatar-pro img { width: 100%; height: 100%; object-fit: cover; }
-
-/* MODALES */
-.modal-overlay {
-  position: fixed; inset: 0; background: rgba(93, 64, 55, 0.4);
-  backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 4000;
-}
-
-.modal-estetico-card {
-  background: var(--card);
-  padding: 32px 26px;
-  border-radius: 22px;
-  width: 92%;
-  max-width: 460px;
-}
-
-/* EDITOR */
+/* ======== EDITOR PROFESIONAL (Full Screen Feel) ======== */
 .modal-full {
-  position: fixed; inset: 0; background: var(--rosa-claro); z-index: 5000; display: none; flex-direction: column;
+  position: fixed;
+  inset: 0;
+  background: var(--rosa-claro);
+  z-index: 5000;
+  padding: 20px;
+  display: none; /* Se activa con JS */
 }
-
-.editor-wrapper { height: 100%; display: flex; flex-direction: column; padding: 20px 40px; }
 
 .papel-contenedor {
-  background: linear-gradient(var(--card), var(--card)) padding-box,
-              repeating-linear-gradient(#f8ecef, #f8ecef 32px, var(--card) 33px);
-  flex: 1; border-radius: 20px; padding: 28px; overflow-y: auto;
+  background: #fff;
+  height: 85vh;
+  margin: 0 auto;
+  max-width: 900px;
+  border-radius: 30px;
+  padding: 50px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--borde);
+  background-image: linear-gradient(var(--borde) 1px, transparent 1px);
+  background-size: 100% 32px; /* Renglones */
 }
 
-.papel-escritura { min-height: 100%; outline: none; font-size: 1.2rem; line-height: 1.8; }
+.papel-escritura {
+  outline: none;
+  line-height: 32px;
+  font-size: 1.2rem;
+}
 
-/* RESPONSIVO */
-@media (max-width: 620px) {
-  .header-principal { padding-top: 72px; }
-  .portada-pro { height: 140px; }
+/* ======== INPUTS LINDOS ======== */
+input, textarea {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--borde);
+  border-radius: 16px;
+  background: var(--rosa-claro);
+  margin-bottom: 15px;
+  font-family: inherit;
 }
